@@ -2,8 +2,6 @@
 
 namespace Hot;
 
-use stdClass;
-
 class Hot{
     //generating sequence of number
     public static function numbers(int $from, string $to, int|float $steps = 1): array{
@@ -71,12 +69,29 @@ class Hot{
     //checking if there is some content
     public static function exist($data):bool{
         if ($data) return true;
+        if ($data ==='') return false;
         if (!$data) return false;
     }
     //json.
     public static function json($data){
         if(is_array($data)){
            return json_encode($data);
+        }else{
+            return $data;
+        }
+    }
+    //array.
+    public static function array($data){
+        if(is_object($data)){
+           return get_object_vars($data);
+        }else{
+            return $data;
+        }
+    }
+    //object.
+    public static function object($data){
+        if(is_array($data)){
+           return (object) $data;
         }else{
             return $data;
         }
@@ -100,7 +115,6 @@ class Hot{
         $returned_filename = [];
         $i = 0;
         $originalFilenames = $files['name'];
-        $fileType = $files['type'];
         $fileSizes = $files['size'];
         $fileTempName = $files['tmp_name'];
         $allowed_extension = array_map(function($extension){return strtolower($extension);
@@ -121,7 +135,7 @@ class Hot{
                 if($fileSize >= $min_size || $fileSize <= $max_size) {
                     // move to upload folder
                     move_uploaded_file($fileTempName[$i], "$upload_path/$new_name");
-                    $returned_filename = [...$returned_filename, ['name'=>$new_name, 'type'=>$fileType[$i]]];
+                    $returned_filename = [...$returned_filename, $new_name];
                 }else{
                     continue;
                 } 
@@ -147,7 +161,7 @@ class Hot{
         
     }
     // delete file
-    public static function delete(string $file_dir, array|string $file_name){
+    public static function delete(array|string $file_name, string $file_dir){
         if(is_string($file_name)){
             $file = "$file_dir/$file_name";
             self::fileExist($file)? unlink($file):null;
@@ -161,7 +175,7 @@ class Hot{
         }
     }
     // get file
-    public static function files(string $file_dir, string|array $file_name, string $default = null):array|string|null{
+    public static function files(string|array $file_name, string $file_dir, string $default = null):array|string|null{
         if(is_string($file_name)){
             $full_name = "$file_dir/$file_name";
             // 
@@ -199,11 +213,12 @@ class Hot{
         return $is_deleted;
     }
     //getting post data
-    public static function post($post = []){
+    public static function post(array $post = []):object{
         return (object) $post;
     }
     //getting post data
-    public static function get($get = []){
+    public static function get(array $get = []):object{
         return (object) $get;
     }
 }
+
