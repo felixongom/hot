@@ -99,9 +99,9 @@ Hot\Hot::upload($_FILES['image'], 'path/to/upload/directory');
 ### delete()
 It deletes any file from the server. It takes in a string or array of filenames and the directory where it is stored.
 ```php
-Hot\Hot::upload('path/to/directory', 'logo.png');
+Hot\Hot::delete('logo.png','path/to/directory',);
 //or
-Hot\Hot::upload('path/to/directory', ['logo.png','image.jpg']);
+Hot\Hot::delete(['logo.png','image.jpg'] , 'path/to/directory');
 ```
 ### files()
 It gets all the files from the provided directory. It take in an array or string of filename, and the derectory where the files is stored and an optional falback inmage which can either be a link or the file on the server. 
@@ -110,7 +110,7 @@ Hot\Hot::files('logo.png','path/to/directory');
 //
 Hot\Hot::files(['logo.png','image.jpg'],'path/to/directory');
 //
-Hot\Hot::files( ['logo.png','image.jpg'],'path/to/directory', 'logo.png');
+Hot\Hot::files(['logo.png','image.jpg'],'path/to/directory', 'logo.png');
 ```
 
 ### fileExist()
