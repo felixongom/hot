@@ -2,6 +2,8 @@
 
 namespace Hot;
 
+use function PHPSTORM_META\type;
+
 class Hot{
     //generating sequence of number
     public static function numbers(int $from, string $to, int|float $steps = 1): array{
@@ -79,6 +81,11 @@ class Hot{
         }else{
             return $data;
         }
+    }
+    //send json.
+    public static function send($data){
+        echo self::json($data);
+        exit();
     }
     //array.
     public static function array($data){
@@ -213,12 +220,82 @@ class Hot{
         return $is_deleted;
     }
     //getting post data
-    public static function post(array $post = []):object{
+    public static function post(array $post = []){
         return (object) $post;
     }
-    //getting post data
-    public static function get(array $get = []):object{
+    //getting get data
+    public static function get(array $get = []){
         return (object) $get;
     }
+    //getting env values data
+    public static function env(string $key = null){
+        $env = parse_ini_file('.env');
+        if($key == null) return $env;
+        if(array_key_exists($key, $env)){
+            return $env[$key];
+        }else{
+            return null;
+        }
+    }
+    //formatting numbers with separator like commas and dots, etc
+    public static function format($number, string $formatter = ","){
+        $number = (string) $number;
+        $number_array = explode('.', $number);
+        $number = $number_array[0];
+        $str_length = strlen($number);
+        $after_point = array_key_exists('1', $number_array)?$number_array[1]:null;
+        $counter = 0;
+        $formatted = '';
+
+        for ($i = 0; $i < $str_length; $i++) { 
+            $counter ++;
+            $single_num = $number[($str_length - $i)-1];
+            // 
+            if($counter%3==0 && $single_num-1){
+                $formatted = "$formatter$single_num$formatted";
+            }else{
+                $formatted = "$single_num$formatted";
+            }
+        }
+        $results = $after_point?$formatted.".$after_point":$formatted;
+        return $results;
+    }
+    //formatting numbers with separator like commas and dots, etc
+    public static function matrix(int $number, int $precision = 0){
+        $result = null;
+        if ($number <100) {
+            return $number;
+        }elseif($number < 1000000){
+            $result = (string)round($number/1000, $precision)."K";
+        }elseif ($number <1000000000) {
+            $result = (string)round($number/1000000, $precision)."M";
+        }elseif ($number <1000000000000) {
+            $result = (string)round($number/1000000000, $precision)."B";
+        }elseif ($number <1000000000000000) {
+            $result = (string)round($number/1000000000000, $precision)."T";
+        }elseif ($number <1000000000000000000) {
+            $result = (string)round($number/1000000000000000, $precision)."Q";
+        }
+        return $result;
+    }
+    //chopping some part of the array or string.
+    public static function chop(string|array $input, int $from, int $to){
+        $input = is_string($input)?str_split($input):$input;
+        $from = $from<1?1:$from;
+        $to = $to>count($input)?count($input):$to;
+        $result = [];
+        for ($i = $from-1; $i<$to; $i++){
+            $result  = [...$result, $input[$i]];
+        }
+        return is_array($result)?$result:join($result);
+    }
+    //trancating but not rounding off
+    public static function trancate(float $number, int $precision = 0){
+        $number = (string) $number;
+        $number = explode('.', $number);
+        $trancated = join(self::chop($number[1], 0, $precision));
+        return (int)$precision==0?$number[0]:$number[0].".".$trancated;
+    }
 }
+
 

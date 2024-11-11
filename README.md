@@ -11,11 +11,13 @@ Hot\Hot::session('active_user');
 // will get active_user from the session variable 
 ```
 ### deleteSession()
-Will delete the session key from the the session variable
+Will delete the session key from the the session variable. if no parameter is passed, it unset the session entire session.
 
 ```php
 Hot\Hot::deleteSession('active_user');
 // will delete session key called active_user from the session variable 
+Hot\Hot::deleteSession();
+// unsets the session.
 
 ```
 
@@ -47,6 +49,11 @@ Converts array to jason object. Has no effect on numbers and strings.
 ```php
 Hot\Hot::json(['name'=>'tom']);
 ```
+### send()
+Converts array to jason object and echo it. Has no effect on numbers and strings. 
+```php
+Hot\Hot::send(['name'=>'tom']);
+```
 ### array()
 Converts object class array to standard arrays. Has no effect on numbers and strings. 
 ```php
@@ -65,7 +72,7 @@ Generate random string of default length 8. Takes in the length of the string as
 Hot\Hot::random(5);
 ```
 ### numbers()
-Generate and returns siquence of number form from up to down. Takes in the three number parameter; from, to and steps. 
+Generate and returns sequence of number from down to up or from up to down. Takes in the three number parameter; from, to and steps. 
 ```php
 Hot\Hot::random(1,8,3);
 // OR
@@ -110,4 +117,43 @@ Hot\Hot::files('path/to/directory', ['logo.png','image.jpg'], 'logo.png');
 It gets all the files if the file exist on the server. takes in the file path and returns a boolean. 
 ```php
 Hot\Hot::fileExist('path/to/directory/logo.png');
+```
+
+### env()
+It reads a particular evironment variable from the .env file. It returns the value of the key passed. If no key is passed it returns the whole env array results. 
+```php
+Hot\Hot::env(); //returns array;
+Hot\Hot::env('passcode'); //returns the value of the key;
+```
+### format()
+It formarts the number with commas by defalt. It takes in the number and an optional formatter, if formatter is nt passed, it default to comma.
+```php
+Hot\Hot::format(10000);
+// 10,000
+Hot\Hot::format(10000000, '.');
+//10.000.000
+```
+### matrix()
+Converts large numbers to shorthands like 10M or 100000, 1.3k for 1300, etc. It takes in the number and the optional precision.
+```php
+Hot\Hot::martix(10000);
+// 10K
+Hot\Hot::format(10000000, 2);
+//10.00M
+```
+### chop()
+It cuts some part of the array or strin off from some position to a particular position.
+```php
+Hot\Hot::chop('Test text', 1, 6);
+// Test t
+Hot\Hot::chop([1,2,3,4,5,6,], 1,4);
+//[1,2,3,4]
+```
+### trancate()
+Instead of rounding off, it trancates the number to some required precision. 
+```php
+Hot\Hot::trancate('Test text', 1, 6);
+// Test t
+Hot\Hot::trancate([1,2,3,4,5,6,], 1,4);
+//[1,2,3,4]
 ```
