@@ -106,11 +106,11 @@ Hot\Hot::upload('path/to/directory', ['logo.png','image.jpg']);
 ### files()
 It gets all the files from the provided directory. It take in an array or string of filename, and the derectory where the files is stored and an optional falback inmage which can either be a link or the file on the server. 
 ```php
-Hot\Hot::files('path/to/directory', 'logo.png');
+Hot\Hot::files('logo.png','path/to/directory');
 //
-Hot\Hot::files('path/to/directory', ['logo.png','image.jpg']);
+Hot\Hot::files(['logo.png','image.jpg'],'path/to/directory');
 //
-Hot\Hot::files('path/to/directory', ['logo.png','image.jpg'], 'logo.png');
+Hot\Hot::files( ['logo.png','image.jpg'],'path/to/directory', 'logo.png');
 ```
 
 ### fileExist()
