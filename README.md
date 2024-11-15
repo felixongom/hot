@@ -152,8 +152,20 @@ Hot\Hot::chop([1,2,3,4,5,6,], 1,4);
 ### trancate()
 Instead of rounding off, it trancates the number to some required precision. 
 ```php
-Hot\Hot::trancate('Test text', 1, 6);
-// Test t
-Hot\Hot::trancate([1,2,3,4,5,6,], 1,4);
-//[1,2,3,4]
+Hot\Hot::trancate(15.57, 1);
+//15.5
 ```
+
+### timeAgo()
+Takes in the date or time and returns how much time has passed. Returns false if less than 1 
+```php
+Hot\Hot::timeAgo('2024-11-10 14:00:00');
+```
+
+### timeLeft()
+Takes in the date or time and returns how much time is left.  Returns false if less than 1  
+```php
+Hot\Hot::timeLeft('2024-11-15 11:38:00');
+```
+
+## Thank you .
