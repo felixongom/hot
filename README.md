@@ -177,7 +177,7 @@ Hot\Hot::hash('123456');
 ### verify()
 Takes in plain text and hash then reterns a boolean, true for match and false for not matching.  
 ```php
-Hot\Hot::verify('123455', .$pdojshjs...');
+Hot\Hot::verify('123455', '$pdojshjs...');
 ```
 
 ## Thank you .
