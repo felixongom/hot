@@ -168,4 +168,16 @@ Takes in the date or time and returns how much time is left.  Returns false if l
 Hot\Hot::timeLeft('2024-11-15 11:38:00');
 ```
 
+### hash()
+Takes in plain text and reterns the hash.  
+```php
+Hot\Hot::hash('123456');
+```
+
+### verify()
+Takes in plain text and hash then reterns a boolean, true for match and false for not matching.  
+```php
+Hot\Hot::verify('123455', .$pdojshjs...');
+```
+
 ## Thank you .

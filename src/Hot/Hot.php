@@ -358,6 +358,14 @@ class Hot{
             return $num . " years";
         }
     }
+    //hash
+    public static function hash($plain_password){
+        return password_hash($plain_password, PASSWORD_DEFAULT);
+    }
+    //verify
+    public static function verify($plain_text, $hash_text){
+        return password_verify($plain_text, $hash_text);
+    }
 }
 
 
