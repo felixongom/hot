@@ -292,7 +292,7 @@ class Hot{
         $number = (string) $number;
         $number = explode('.', $number);
         $trancated = join(self::chop($number[1], 0, $precision));
-        return (int)$precision==0?$number[0]:$number[0].".".$trancated;
+        return (float)$precision==0?$number[0]:$number[0].".".$trancated;
     }
     //time ago
     public static function timeAgo($datetime) {
