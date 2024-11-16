@@ -45,12 +45,12 @@ Checks if a paticular data exists. it returns boolean. Null, 0, empty and string
 Hot\Hot::exist('hello');
 ```
 ### json()
-Converts array to jason object. Has no effect on numbers and strings. 
+Converts array to json object. Has no effect on numbers and strings. 
 ```php
 Hot\Hot::json(['name'=>'tom']);
 ```
 ### send()
-Converts array to jason object and echo it. Has no effect on numbers and strings. 
+Converts array to json object and echo it. Has no effect on numbers and strings. 
 ```php
 Hot\Hot::send(['name'=>'tom']);
 ```
