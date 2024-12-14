@@ -1,5 +1,5 @@
 {
-    "name": "ongom/hot",
+    "name": "ongom/hot-lib",
     "description": "A PHP library for providing most of the common PHP function like session, flash messeging and also file hundling.",
     "type": "library",
     "license": "MIT",
