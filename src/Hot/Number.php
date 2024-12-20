@@ -21,7 +21,7 @@ class Number{
         return $result_array;
     }
     //formatting numbers with separator like commas and dots, etc
-    public static function format($number, string $formatter = ","){
+    public static function format($number, string $formatter = ","):string{
         $number = (string) $number;
         $number_array = explode('.', $number);
         $number = $number_array[0];
@@ -44,7 +44,7 @@ class Number{
         return $results;
     }
     //formatting numbers with separator like commas and dots, etc
-    public static function matrix(int $number, int $precision = 0){
+    public static function matrix(int $number, int $precision = 0):string{
         $result = null;
         if ($number <100) {
             return $number;
@@ -73,7 +73,7 @@ class Number{
         return is_array($result)?$result:join($result);
     }
     //trancating but not rounding off
-    public static function trancate(float $number, int $precision = 0){
+    public static function trancate(float $number, int $precision = 0):bool{
         $number = (string) $number;
         $number = explode('.', $number);
         $trancated = join(self::chop($number[1], 0, $precision));
