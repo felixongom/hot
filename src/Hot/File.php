@@ -3,20 +3,32 @@ namespace Hot;
 
 class File{
     // upload files
-   public static function upload($files, string $upload_path, array $allowed_extension = [], $min_size = 0, $max_size = null){
-        if(!isset($files)) return false;
+
+   public static function upload(array $params){
+        if(!isset($params['files'])) return false;
         // 
+        $default_setup = ['min_size'=>0,'max_size'=>null];
+        $params = [$params,...$default_setup];
         $returned_filename = [];
         $i = 0;
-        $originalFilenames = $files['name'];
-        $fileSizes = $files['size'];
-        $fileTempName = $files['tmp_name'];
+        $originalFilenames = $params['files']['name'];
+        $fileSizes = $params['files']['size'];
+        $fileTempName = $params['files']['tmp_name'];
         $allowed_extension = array_map(function($extension){return strtolower($extension);
-        },$allowed_extension);
+        },$params['allowed_extension']);
         // 
-        if(is_string($files['name'])){
-            //upload single files
-            return self:: uploadOne($files, $allowed_extension, $min_size, $max_size, $upload_path);
+        if(is_string($params['files']['name'])){
+            //upload single params
+            $define_params = [
+                'files'=>$params['files'], 
+                'allowed_extension'=>$params['allowed_extension'], 
+                'min_size'=>$params['min_size'], 
+                'max_size'=>$params['max_size'], 
+                'upload_path'=>$params['upload_path'],
+                'new_name'=>$params['new_name']
+            ];
+
+            return self:: uploadOne($define_params);
         }else{
             foreach($originalFilenames  as $originalFilename){
                 $file_extenson = pathinfo($originalFilename, PATHINFO_EXTENSION);
@@ -24,10 +36,11 @@ class File{
                 // 
                 $random_name = Hot::random(20);
                 $new_name = "$originalFilename __$random_name.$file_extenson";
-                $fileSize = ($min_size || $max_size) ?  $fileSizes[$i]:0;
+                $fileSize = ($params['min_size'] || $params['max_size']) ?  $fileSizes[$i]:0;
                 // 
-                if($fileSize >= $min_size || $fileSize <= $max_size) {
+                if($fileSize >= $fileSizes['min_size'] || $fileSize <= $fileSizes['max_size']) {
                     // move to upload folder
+                    $upload_path = $params['upload_path'];
                     move_uploaded_file($fileTempName[$i], "$upload_path/$new_name");
                     $returned_filename = [...$returned_filename, $new_name];
                 }else{
@@ -35,22 +48,27 @@ class File{
                 } 
                 $i++;
                 }
-                return $returned_filename;
+                return $returned_filename??false;
         }
     }
     // 
-    private static function uploadOne($file, $allowed_extension, $min_size, $max_size, $upload_path){
-        $file_extenson = pathinfo($file['name'], PATHINFO_EXTENSION);
-        if(count($allowed_extension) && !in_array($file_extenson, $allowed_extension)) return false;
+   
+    private static function uploadOne(array $params){
+        $default_setup = ['min_size'=>0,'max_size'=>null];
+        $params = [$params,...$default_setup];
+        // 
+        $file_extenson = pathinfo($params['file']['name'], PATHINFO_EXTENSION);
+        if(count($params['allowed_extension']) && !in_array($params['file_extenson'], $params['allowed_extension'])) return false;
         // 
         $random_name = Hot::random(20);
-        $new_name = $file['name']."__$random_name.$file_extenson";
-        $fileSize = ($min_size || $max_size) ?  $file['size']:0;
+        $new_name = (array_key_exists('new_name', $params)?$params['new_name']."___$random_name":$params['file']['name']."___$random_name").$file_extenson;
+        $fileSize = ($params['min_size'] || $params['max_size']) ?  $params['file']['size']:0;
         // 
-        if($fileSize >= $min_size || $fileSize <= $max_size) {
+        if($fileSize >= $params['min_size'] || $params['fileSize'] <= $params['max_size']) {
             // move to upload folder
-            move_uploaded_file($file['tmp_name'], "$upload_path/$new_name");
-            return ['name'=>$new_name, 'type'=>$file['type']];
+            $upload_path = $params['upload_path'];
+            move_uploaded_file($params['file']['tmp_name'], "$upload_path/$new_name");
+            return ['name'=>$new_name, 'type'=>$params['file']['type']];
         }
         
     }
@@ -69,7 +87,7 @@ class File{
         }
     }
     // get file
-    public static function files(string|array $file_name, string $file_dir, string $default = null):array|string|null{
+    public static function files(string|array $file_name, string $file_dir, string $default = ''){
         if(is_string($file_name)){
             $full_name = "$file_dir/$file_name";
             // 

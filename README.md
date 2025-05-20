@@ -55,7 +55,17 @@ Hot\Data::json(['name'=>'tom']);
 ### send()
 Converts array to json object and echo it. Has no effect on numbers and strings. 
 ```php
-Hot\Data::send(['name'=>'tom']);
+Hot\Data::send(['name'=>'tom'], $status_code = 200);
+```
+### getBody()
+Extracting request body from post request. passing false will return an object var
+```php
+Hot\Data::getBody($as_array = true);
+```
+### getQuery()
+Extracting query string from post request. Passing false will return an object var
+```php
+Hot\Data::getQuery($as_array = true);
 ```
 ### array()
 Converts object class array to standard arrays. Has no effect on numbers and strings. 
@@ -100,12 +110,18 @@ Data::$post->key;
 Data::$post->name;
 ```
 ### upload()
-It uploads single or multiple files locally on the server. It also renames the files before saving it. Takes in four parameters, the file, upload path, array of allowed extension minimum accepted file size and maximum accepted file size and it retuns a string for single file, array for multiple files and false for failure to upload.
+It uploads single or multiple files locally on the server. It also renames the files before saving it. Takes in array parameter,and it retuns a string for single file, array for multiple files and false for failure to upload.
 ```php
-Hot\File::upload($_FILES['image'], 'path/to/upload/directory', ['jpg','png'], 5, 20);
+$params = [
+                'files'=>'file.png', 
+                'allowed_extension'=>['jpg','png'], 
+                'min_size'=>3, //optionsl in kb
+                'max_size'=>6, //optional in kb
+                'upload_path'=>'path/to/upload/directory',
+                'new_name'=>'mode_term_2' //optional
+            ];
+Hot\File::upload($params);
 // min size = 5 and max size = 20
-Hot\File::upload($_FILES['image'], 'path/to/upload/directory');
-//last three parameters are optional.
 ```
 ### delete()
 It deletes any file from the server. It takes in a string or array of filenames and the directory where it is stored.

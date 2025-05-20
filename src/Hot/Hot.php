@@ -33,14 +33,14 @@ class Hot{
         return;
     }
     // setting session
-    public static function deleteSession(string $session_key = null): void{
+    public static function deleteSession(string $session_key = ''): void{
         if (!isset($_SESSION)) session_start();
         //
-        if($session_key = null){
+        if(!$session_key){
             session_destroy();
         }elseif ($session_key && array_key_exists($session_key, $_SESSION)) { //remove it
             unset($_SESSION[$session_key]);
-        } elseif ($session_key === null) { //remove all
+        } elseif ($session_key==='') { //remove all
             session_destroy();
         }
     }
