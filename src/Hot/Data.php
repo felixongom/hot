@@ -35,15 +35,15 @@ class Data{
         }
     }
     //checking if there is some content
-    public static function exist($data):bool{
+    public static function exist($data){
         if ($data) return true;
         if ($data ==='') return false;
         if (!$data) return false;
     }
     //json.
     public static function json($data){
-        if(is_array($data)){
-        return json_encode($data);
+        if(is_array($data) || is_object($data)){
+            return json_encode($data);
         }else{
             return $data;
         }
