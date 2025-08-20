@@ -207,4 +207,213 @@ Takes in plain text and hashed text then, reterns a boolean, true for match and 
 Hot\Password::verify('123455', '$pdojshjs...');
 ```
 
+
+
+<!--  -->
+##  View Class Template Engine Documentation
+#### Overview
+
+The View class is a lightweight PHP template engine that allows:
+
+- Rendering PHP templates with variables.
+
+- Using layouts and includes with optional variables.
+
+- Supporting both @directive and {{ directive() }} syntaxes.
+
+- Nested layouts and includes.
+
+- Automatic merging of parent data into layouts/includes.
+
+- Auto-echoing output (no need for echo).
+
+- Blade-style variable access with dot notation ({{ name }}, {{ address.city }}).
+
+
+#### Methods
+##### - `setPath(string $path)`
+
+Sets the base folder path for view files.
+
+`View::setPath(__DIR__ . '/my_views');`
+
+##### - `render(string $file, array $data = []);`
+
+Renders a template file with optional variables and auto-echoes the output.
+
+
+```php
+View::render('home', [
+    'title' => 'Dashboard',
+    'user' => ['name' => 'Felix']
+]);
+```
+
+##### Directives
+
+The engine supports layouts and includes with optional variables, using two syntaxes:
+
+###### - `@directive('file', [...])` OR {{ `directive('file', [...]) }}`
+
+Both work interchangeably.
+
+###### - `layout('file', array $vars = [])`
+
+Sets a layout for the current view.
+
+The layout file can receive optional variables.
+
+Parent view data is automatically merged.
+
+```php 
+@layout('main', ['pageTitle' => 'Home'])
+{{ layout('main', ['pageTitle' => 'Dashboard']) }}
+```
+
+###### - `include('file', array $vars = [])`
+
+Includes another template file inside the current template.
+
+Can pass optional variables.
+
+Supports nested includes.
+
+Example:
+```php
+@include('header', ['user' => $user])
+{{ include('footer', ['year' => 2025]) }}
+```
+##### Variable Access
+
+Use `{{ variable }}` instead of `<?= $variable ?>`.
+
+`$` symbol is optional.
+
+Supports dot notation for nested arrays:
+```php
+$data = [
+    'user' => [
+        'profile' => [
+            'email' => 'felix@example.com'
+        ]
+    ]
+];
+
+View::render('profile', $data);
+```
+
+profile.php:
+```php
+<p>Email: {{ user.profile.email }}</p>
+```
+
+##### Output:
+```php
+<p>Email: felix@example.com</p>
+``` 
+
+##### Nested Layouts and Includes
+
+Layouts can include other layouts or templates.
+
+Includes can contain other includes.
+
+Parent variables are automatically available unless overridden.
+
+
+home.php:
+```php
+@layout('main', ['pageTitle' => 'Home'])
+
+<h1>Hello, {{ user.name }}</h1>
+
+@include('footer', ['year' => 2025])
+
+```
+main.php:
+
+```php
+<html>
+<head>
+    <title>{{ pageTitle }}</title>
+</head>
+<body>
+    {{ include('header') }}
+    <?= $slot ?? '' ?> <!-- optional content slot -->
+</body>
+</html>
+```
+Optional Variables in Directives
+
+Both ``include()`` and ``layout()`` can optionally accept variables:
+```php
+@include('header', ['username' => user.name])
+@layout('main', ['pageTitle' => 'Dashboard'])
+```
+
+If no variables are provided, the parent view’s data is used automatically.
+
+Supported Syntax Summary
+Feature	Syntax Examples
+Include	```@include('file')``` or
+```{{ include('file') }}```
+
+Include with vars	```@include('file', ['key' => 'value'])``` or
+```{{ include('file', ['key' => 'value']) }}```
+
+Layout	```@layout('file')``` or
+```{{ layout('file') }}```
+Layout with vars	```@layout('file', ['key' => 'value'])``` or
+```{{ layout('file', ['key' => 'value']) }}```
+Variables	```{{ name }}```
+```{{ address.city }}```
+Usage Example
+```php
+$data = [
+    'title' => 'Welcome Page',
+    'user' => ['name' => 'Felix'],
+    'address' => ['city' => 'Kampala', 'street' => 'Plot 23']
+];
+
+View::render('home', $data);
+```
+home.php:
+```php
+@layout('main', ['pageTitle' => 'Home'])
+
+<h1>Hello, {{ user.name }}</h1>
+<p>City: {{ address.city }}</p>
+<p>Street: {{ address.street }}</p>
+
+@include('footer', ['year' => 2025])
+
+```
+main.php:
+```php
+<html>
+<head>
+    <title>{{ pageTitle }}</title>
+</head>
+<body>
+    {{ include('header') }}
+    <?= $slot ?? '' ?>
+</body>
+</html>
+```
+
+Output:
+```php
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <header>...</header>
+    <h1>Hello, Felix</h1>
+    <p>City: Kampala</p>
+    <p>Street: Plot 23</p>
+    <footer>2025</footer>
+</body>
+</html>
+```
 ## Thank you .
