@@ -392,7 +392,7 @@ project/
 ---
 
 ### Usage Examples
-
+You can also use it with any router 
 ```php
 // Set paths
 View::setViewPath(__DIR__ . '/views');
