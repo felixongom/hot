@@ -210,210 +210,213 @@ Hot\Password::verify('123455', '$pdojshjs...');
 
 
 <!--  -->
-##  View Class Template Engine Documentation
-#### Overview
+# View Engine
 
-The View class is a lightweight PHP template engine that allows:
+This is a **lightweight, class-based PHP View Engine** that allows you to:
 
-- Rendering PHP templates with variables.
+* Render template files, raw strings, or numbers.
+* Use layouts with **slots** (default `$slot`).
+* Include partials (`@include` or `{{ include() }}`) and pass data.
+* Access nested variables via **dot (`user.name`)** or **arrow (`user->name`)** syntax.
+* Use layouts optionally and support **nested layouts**.
+* Automatically echo output via `View::render()` or return as string via `View::fetch()`.
 
-- Using layouts and includes with optional variables.
+---
 
-- Supporting both @directive and {{ directive() }} syntaxes.
+## Class: `View`
 
-- Nested layouts and includes.
-
-- Automatic merging of parent data into layouts/includes.
-
-- Auto-echoing output (no need for echo).
-
-- Blade-style variable access with dot notation ({{ name }}, {{ address.city }}).
-
-
-#### Methods
-##### - `setPath(string $path)`
-
-Sets the base folder path for view files.
-
-`View::setPath(__DIR__ . '/my_views');`
-
-##### - `render(string $file, array $data = []);`
-
-Renders a template file with optional variables and auto-echoes the output.
-
+### Setting Paths
 
 ```php
-View::render('home', [
-    'title' => 'Dashboard',
-    'user' => ['name' => 'Felix']
-]);
+View::setViewPath(string $path);
+View::setLayoutPath(string $path);
 ```
 
-##### Directives
+* `setViewPath`: Define the directory where your template files reside.
+* `setLayoutPath`: Define the directory where your layout files reside.
 
-The engine supports layouts and includes with optional variables, using two syntaxes:
+**Example:**
 
-###### - `@directive('file', [...])` OR {{ `directive('file', [...]) }}`
-
-Both work interchangeably.
-
-###### - `layout('file', array $vars = [])`
-
-Sets a layout for the current view.
-
-The layout file can receive optional variables.
-
-Parent view data is automatically merged.
-
-```php 
-@layout('main', ['pageTitle' => 'Home'])
-{{ layout('main', ['pageTitle' => 'Dashboard']) }}
-```
-
-###### - `include('file', array $vars = [])`
-
-Includes another template file inside the current template.
-
-Can pass optional variables.
-
-Supports nested includes.
-
-Example:
 ```php
-@include('header', ['user' => $user])
-{{ include('footer', ['year' => 2025]) }}
-```
-##### Variable Access
-
-Use `{{ variable }}` instead of `<?= $variable ?>`.
-
-`$` symbol is optional.
-
-Supports dot notation for nested arrays:
-```php
-$data = [
-    'user' => [
-        'profile' => [
-            'email' => 'felix@example.com'
-        ]
-    ]
-];
-
-View::render('profile', $data);
+View::setViewPath(__DIR__ . '/views');
+View::setLayoutPath(__DIR__ . '/layouts');
 ```
 
-profile.php:
+---
+
+### Rendering Templates
+
+#### `render()`
+
 ```php
-<p>Email: {{ user.profile.email }}</p>
+View::render(string|int $viewOrContent, array $data = [], ?string $layout = null): void
 ```
 
-##### Output:
+* Automatically **echoes** the output.
+* Accepts:
+
+  1. Template file name (from `viewPath`).
+  2. Raw string template containing `{{ }}`.
+  3. Numbers (outputs as string).
+* Optional layout wraps the content.
+
+**Example:**
+
 ```php
-<p>Email: felix@example.com</p>
-``` 
+// Template file with layout
+View::render('home', ['name'=>'Felix'], 'main');
 
-##### Nested Layouts and Includes
+// Raw string
+View::render('<p>Hello {{ name }}</p>', ['name'=>'Alice']);
 
-Layouts can include other layouts or templates.
+// Plain number
+View::render(12345);
+```
 
-Includes can contain other includes.
+---
 
-Parent variables are automatically available unless overridden.
+#### `fetch()`
 
-
-home.php:
 ```php
-@layout('main', ['pageTitle' => 'Home'])
+View::fetch(string|int $viewOrContent, array $data = [], ?string $layout = null): string
+```
 
-<h1>Hello, {{ user.name }}</h1>
+* Works like `render()`, but **returns the content as string** instead of echoing.
+* Useful for storing or manipulating the rendered content before output.
 
-@include('footer', ['year' => 2025])
+---
+
+### Template Syntax
+
+#### Variables
+
+* Basic variable: `{{ name }}` or `{{ $name }}`
+* Nested variables:
+
+```php
+{{ user.name }}   // array access
+{{ user->email }} // object access
+```
+
+---
+
+#### Includes / Partials
+
+* **Directive style**: `@include('partial', ['key'=>'value'])`
+* **Function style**: `{{ include('partial', ['key'=>'value']) }}`
+
+**Example:**
+
+```php
+@include('partials/header', ['user'=>$name])
+{{ include('partials/footer', ['year'=>2024]) }}
+```
+
+---
+
+#### Layouts and Slots
+
+* Use a layout: `View::render('home', $data, 'main')`
+* Nested layouts inside a layout:
+
+```php
+@layout('main')
+```
+
+* Inside layouts, the **child content is available as `$slot`**:
+
+```php
+<main>
+  {{ $slot }}
+</main>
+```
+
+---
+
+### Internal Methods (Advanced / Optional)
+
+* `compile(string $content)`: Converts template syntax (`{{ }}`, `@include`, `@layout`) into executable PHP.
+* `includePartial(string $view, array $data = [])`: Render a partial file with optional data.
+* `extendLayout(string $layout, array $data)`: Used internally for nested layouts.
+
+---
+
+### Example Project Structure
 
 ```
-main.php:
+project/
+│── View.php
+│── test.php
+│── views/
+│    ├── home.php
+│    ├── user.php
+│    └── partial.php
+│── layouts/
+     ├── main.php
+     └── nested.php
+```
+
+---
+
+### Sample Templates
+
+**views/home.php**
+
+```php
+<h1>Hello {{ user.name }}</h1>
+<p>Email: {{ user->email }}</p>
+@include('partial', ['msg'=>'From Home'])
+```
+
+**layouts/main.php**
 
 ```php
 <html>
-<head>
-    <title>{{ pageTitle }}</title>
-</head>
+<head><title>{{ title }}</title></head>
 <body>
-    {{ include('header') }}
-    <?= $slot ?? '' ?> <!-- optional content slot -->
-</body>
-</html>
-```
-Optional Variables in Directives
-
-Both ``include()`` and ``layout()`` can optionally accept variables:
-```php
-@include('header', ['username' => user.name])
-@layout('main', ['pageTitle' => 'Dashboard'])
-```
-
-If no variables are provided, the parent view’s data is used automatically.
-
-Supported Syntax Summary
-Feature	Syntax Examples
-Include	```@include('file')``` or
-```{{ include('file') }}```
-
-Include with vars	```@include('file', ['key' => 'value'])``` or
-```{{ include('file', ['key' => 'value']) }}```
-
-Layout	```@layout('file')``` or
-```{{ layout('file') }}```
-Layout with vars	```@layout('file', ['key' => 'value'])``` or
-```{{ layout('file', ['key' => 'value']) }}```
-Variables	```{{ name }}```
-```{{ address.city }}```
-Usage Example
-```php
-$data = [
-    'title' => 'Welcome Page',
-    'user' => ['name' => 'Felix'],
-    'address' => ['city' => 'Kampala', 'street' => 'Plot 23']
-];
-
-View::render('home', $data);
-```
-home.php:
-```php
-@layout('main', ['pageTitle' => 'Home'])
-
-<h1>Hello, {{ user.name }}</h1>
-<p>City: {{ address.city }}</p>
-<p>Street: {{ address.street }}</p>
-
-@include('footer', ['year' => 2025])
-
-```
-main.php:
-```php
-<html>
-<head>
-    <title>{{ pageTitle }}</title>
-</head>
-<body>
-    {{ include('header') }}
-    <?= $slot ?? '' ?>
+<header>HEADER</header>
+<main>{{ $slot }}</main>
+<footer>FOOTER</footer>
 </body>
 </html>
 ```
 
-Output:
+**layouts/nested.php**
+
 ```php
-<html>
-<head>
-    <title>Home</title>
-</head>
-<body>
-    <header>...</header>
-    <h1>Hello, Felix</h1>
-    <p>City: Kampala</p>
-    <p>Street: Plot 23</p>
-    <footer>2025</footer>
-</body>
-</html>
+@layout('main')
+<nav>NAVBAR</nav>
+<div>{{ $slot }}</div>
 ```
-## Thank you .
+
+---
+
+### Usage Examples
+
+```php
+// Set paths
+View::setViewPath(__DIR__ . '/views');
+View::setLayoutPath(__DIR__ . '/layouts');
+
+// Render template file with layout
+View::render('home', ['user'=>['name'=>'Felix','email'=>'f@example.com'], 'title'=>'Home'], 'main');
+
+// Render raw string
+View::render('<p>Hello {{ name }}</p>', ['name'=>'Alice']);
+
+// Render number
+View::render(12345);
+
+// Nested layout
+View::render('home', ['user'=>['name'=>'Dana','email'=>'d@example.com']], 'nested');
+```
+
+---
+
+### Notes
+
+* **Dollar sign in variables is optional.** `{{ name }}` or `{{ $name }}` works.
+* Supports **both array and object access** in nested variables.
+* Both **directive and function style includes** are supported.
+* Layouts are **optional** and can extend other layouts.
+* `$slot` variable contains the child content inside layouts.
