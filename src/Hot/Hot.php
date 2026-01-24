@@ -44,11 +44,7 @@ class Hot{
             session_destroy();
         }
     }
-    // redirection the path
-    public static function redirect(string $path):void{
-        header("Location: $path");
-        die();
-    }
+
    
     //random string.
     public static function random(int $length = 8):string{

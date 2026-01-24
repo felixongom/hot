@@ -34,117 +34,6 @@ Hot\Hot::flash('seccess', 'sent the messege successfully');
 Hot\Hot::flash('success');
 // will get flash messege with key sucsess  
 ```
-### redirect()
-Redirects the request to a new route. It takes in the new redirect route.
-```php
-Hot\Hot::redirect('/login');
-// if using  a route
-Hot\Hot::redirect('https://www.youtube.com');
-// if using php core without routing library
-```
-### exist()
-Checks if a paticular data exists. it returns boolean. Null, 0 and empty string returns false
-```php
-Hot\Data::exist('hello');
-```
-### json()
-Converts array to json object. Has no effect on numbers and strings. 
-```php
-Hot\Data::json(['name'=>'tom']);
-```
-### send()
-Converts array to json object and echo it. Has no effect on numbers and strings. 
-```php
-Hot\Data::send(['name'=>'tom'], $status_code = 200);
-```
-### getBody()
-Extracting request body from post request. passing false will return an object var
-```php
-Hot\Data::getBody($as_array = true);
-```
-### getQuery()
-Extracting query string from post request. Passing false will return an object var
-```php
-Hot\Data::getQuery($as_array = true);
-```
-### array()
-Converts object class array to standard arrays. Has no effect on numbers and strings. 
-```php
-Hot\Data::array(stdClass Object ([name] => tom [age] => 13));
-// ['name'=>'tom', 'age'=>13]
-```
-### object()
-Converts array to standard class object. Has no effect on numbers and strings. 
-```php
-Hot\Data::object(['name'=>'tom', 'age'=>13]);
-// stdClass Object ([name] => tom [age] => 13)
-```
-### rundom()
-Generate random string of default length 8. Takes in the length of the string as one parameter. 
-```php
-Hot\Hot::random(5);
-```
-### sequence()
-Generate and returns sequence of number from down to up or from up to down. Takes in the three number parameter; from, to and steps. 
-```php
-Hot\Number::sequence(1,8,3);
-// OR
-Hot\Number::sequence(8, 5, 0.2);
-```
-### get()
-Returns the varables which are on get superglobal in object form. It takes in $_GET supergloble variable
-```php
-Hot\Data::get($_GET);
-
-//Also after calling the method, you can access tha keys 
-Data::$get->key;
-Data::$get->name;
-```
-### post()
-Returns the varables which are on post superglobal in object form. It takes in $_POST supergloble variable
-```php
-Hot\Data::post($_POST);
-
-//Also after calling the method, you can access tha keys 
-Data::$post->key;
-Data::$post->name;
-```
-### upload()
-It uploads single or multiple files locally on the server. It also renames the files before saving it. Takes in array parameter,and it retuns a string for single file, array for multiple files and false for failure to upload.
-```php
-$params = [
-                'files'=>'file.png', 
-                'allowed_extension'=>['jpg','png'], 
-                'min_size'=>3, //optionsl in kb
-                'max_size'=>6, //optional in kb
-                'upload_path'=>'path/to/upload/directory',
-                'new_name'=>'mode_term_2' //optional
-            ];
-Hot\File::upload($params);
-// min size = 5 and max size = 20
-```
-### delete()
-It deletes any file from the server. It takes in a string or array of filenames and the directory where it is stored.
-```php
-Hot\File::delete('logo.png','path/to/directory',);
-//or
-Hot\File::delete(['logo.png','image.jpg'] , 'path/to/directory');
-```
-### files()
-It gets all the files from the provided directory. It take in an array or string of filename, and the derectory where the files is stored and an optional falback inmage which can either be a link or the file on the server. 
-```php
-Hot\File::files('logo.png','path/to/directory');
-//
-Hot\File::files(['logo.png','image.jpg'],'path/to/directory');
-//
-Hot\File::files(['logo.png','image.jpg'],'path/to/directory', 'logo.png');
-```
-
-### exist()
-It gets all the files if the file exist on the server. takes in the file path and returns a boolean. 
-```php
-Hot\File::exist('path/to/directory/logo.png');
-```
 
 ### env()
 It reads a particular evironment variable from the .env file. It returns the value of the key passed. If no key is passed it returns the whole env array results. 
@@ -152,6 +41,183 @@ It reads a particular evironment variable from the .env file. It returns the val
 Hot\Data::env(); //returns array;
 Hot\Data::env('passcode'); //returns the value of the key;
 ```
+
+
+### rundom()
+Generate random string of default length 8. Takes in the length of the string as one parameter. 
+```php
+Hot\Hot::random(5);
+```
+## URL
+### redirect()
+Redirect to any URL. It takes in the new redirect route, array or string query params and status.
+```php
+public static function redirect(
+        string $url,
+        string|array|null $query = null,
+        int $status = 302
+    ): never 
+
+//usage
+Hot\Url::redirect('/login', ['name'=>'tom'], 300)
+// if using  a route
+Hot\Url::redirect('https://www.youtube.com');
+// if using php core without routing library
+```
+### redirectBack()
+Redirects the request back to the url it is comming from. It takes in array or string query params and status and a status code.
+```php
+public static function redirectBack(
+        string|array|null $query = null,
+        int $status = 302
+    ):never
+
+//usage
+Hot\Url::redirectBack(['name'=>'tom'], 300)
+```
+### serverBase()
+Returns the base URL of the the server you are currently running the website on. Server base URL (domain only)
+```php
+ public static function serverBase(string|array|null $query = null): string
+
+//usage
+Hot\Url::serverBase()
+//https://ongom.com
+```
+### incoming()
+Returns the full URL where the request is comming from. Full incoming URL (path + query)
+```php
+public static function incoming(string|array|null $query = null): string
+
+//usage
+Hot\Url::incoming()
+//https://ongom.com/home
+```
+### incomingPath()
+Returns the incoming path only (no scheme, no host)
+```php
+ public static function incomingPath(string|array|null $query = null): string
+
+//usage
+Hot\Url::incomingPath()
+```
+## Request
+
+### body()
+Gets request body from an api call. It can return Object or array or null
+```php
+public static function body(bool $as_array = true):array|object|null
+Hot\Request::body()
+```
+### params()
+Gets request query params. It can return Object or array or null
+```php
+public static function params(bool $as_array = true):array|object|null
+Hot\Request::params()
+```
+### post()
+Gets posted data from a form in post request. It can return Object or array or null
+```php
+public static function post(bool $as_array = true):array|object|null
+Hot\Request::post()
+```
+### get()
+Gets posted data from a form in a get request. It can return Object or array or null
+```php
+public static function get(bool $as_array = true):array|object|null
+Hot\Request::get()
+```
+### files()
+Gets file(s) submited from form or api call. It can return the file or null
+```php
+public static function files()
+Hot\Request::files()
+```
+## Response
+
+### json()
+Converts array or object to json object. Has no effect on numbers and strings.
+```php
+public static function json($data, int $status_code = 200)
+Hot\Response::json()
+```
+
+### send()
+Converts array or object to json object and send back. Has no effect on numbers and strings.
+```php
+public static function send($data, int $status_code = 200)
+Hot\Response::send()
+```
+
+### sequence()
+Generate and returns sequence of number from down to up or from up to down. Takes in the three number parameter; from, to and steps. 
+```php
+Hot\Number::sequence(1,8,3);
+// OR
+Hot\Number::sequence(8, 5, 0.2);
+```
+## Files
+
+### upload()
+It uploads single or multiple files locally on the server. It also renames the files before saving it. Takes in array parameter,and it retuns a string for single file, array for multiple files and false for failure to upload.
+```php
+   public static function upload($files, array $options)
+$options = [
+            'allowed_extension'=>['jpg','png'], //(optional)
+            'min_size'=>3, //optionsl in kb (optional)
+            'max_size'=>6, //optional in kb (optional)
+            'upload_path'=>'path/to/upload/directory', //(optional)
+            'new_name'=>'mode_term_2' //optional
+            'fixed_name'='any unique upload filename' //optional
+            ];
+Hot\Files::upload($_FILES['files'], $options);
+// min size = 5 and max size = 20
+```
+### delete()
+It deletes any file from the server. It takes in a string or array of filenames and the directory where it is stored.
+```php
+Hot\Files::delete('logo.png','path/to/directory',); //path can be url
+//or
+Hot\Files::delete(['logo.png','image.jpg'] , 'path/to/directory');
+```
+### getFiles()
+It gets all the files from the provided directory. It take in an array or string of filename, and the derectory where the files is stored and an optional fallback image which can either be a link or the file on the server. 
+```php
+Hot\Files::files('logo.png','path/to/directory');
+//
+Hot\Files::files(['logo.png','image.jpg'],'https://myapp.com/public/uploads');
+//
+Hot\Files::files(['logo.png','image.jpg'],'path/to/directory', 'logo.png');
+```
+
+### exist()
+checks if a file exist in the directory. Takes in the file path and returns a boolean. 
+```php
+Hot\Files::exist('logo.png','path/to/directory/');
+
+Hot\Files::exist('logo.png','https://myapp.com/public/uploads');
+```
+
+## Number 
+
+### numberToWords()
+Converts number to word upto the range of trillion.
+```php
+public static function numberToWords(float|int $number): string
+// usage
+Hot\Number::numberToWords(1002);
+//one thousand two 
+```
+
+### currency
+Converts money to words
+```php
+public static function currency(float $amount, string $code): string
+// usage
+Hot\Number::currency(1002, 'USD');
+//one thousand two  US dollars
+```
+
 ### format()
 It formats the number with commas by default. It takes in the number and an optional formatter, if formatter is not passed, it default to comma.
 ```php
@@ -296,6 +362,7 @@ View::fetch(string|int $viewOrContent, array $data = [], ?string $layout = null)
 ```php
 {{ user.name }}   // array access
 {{ user->email }} // object access
+{!! post.content !!} // html content
 ```
 
 ---
@@ -310,8 +377,77 @@ View::fetch(string|int $viewOrContent, array $data = [], ?string $layout = null)
 ```php
 @include('partials/header', ['user'=>$name])
 {{ include('partials/footer', ['year'=>2024]) }}
+
 ```
 
+---
+
+#### Components / Partials
+Set up path to compont directory 
+```php
+  View::setComponentPath(__DIR__ . '/views/components');
+```
+Create an html file in that directory eg. profile.html, Add content to you html
+```php
+  <div> profile: {{user.name}}</div>
+
+  //OR
+
+  <div> 
+    <h1>{{ user.name }}</h1>
+    <h1>{{ user->email }}</h1>
+    <?= $slot ?> //to dispaly other content within the component tags 
+  </div>
+
+  //OR
+
+  <table>
+    <?php foreach ($users as $user): ?>
+        <tr>
+            <td><?= $user['name'] ?></td>
+        </tr>
+    <?php endforeach ?>
+  </table>
+
+<p>Total users: <?= count($users) ?></p>
+
+```
+Display the component within your templete using its name as before
+
+**Example:**
+in the templete
+```php
+<x-profile user="$user" users="$users" count="5" />
+//oR
+<x-profile user="$user" users="$users" count="5"></x-profile>
+//oR
+<x-profile user="$user" users="$users" count="5">
+  Profile HTML markup
+</x-profile>
+
+```
+
+
+### 8️⃣ Component Summary table
+
+| Data type    | Supported | Access in component |
+| ------------ | --------- | ------------------- |
+| String       | ✅         | `$title`            |
+| Integer      | ✅         | `$count`            |
+| Boolean      | ✅         | `$isAdmin`          |
+| Array        | ✅         | `$users[]`          |
+| Object       | ✅         | `$user->name`       |
+| Closure      | ✅         | `$callback()`       |
+| Slot content | ✅         | `$slot`             |
+
+
+#### Available variables in components
+
+- $slot → inner content
+
+- All passed props → $text, $class, etc.
+
+- Props are unlimited.
 ---
 
 #### Layouts and Slots
@@ -413,8 +549,66 @@ View::render('home', ['user'=>['name'=>'Dana','email'=>'d@example.com']], 'neste
 
 ---
 
+🚀 View Caching
+
+- Compiled templates are cached to disk for high performance.
+
+#### How it works
+
+- Templates compile once
+
+- Cached PHP files are reused
+
+- Cache invalidates automatically when source files change
+
+```php 
+"storage/views/" //must be writable
+```
+
+#### 🛡 Security Notes
+
+- {{ }} is always escaped
+
+- {!! !!} is raw (use carefully)
+
+- Components and layouts share the same escape rules
+
+- Avoid rendering untrusted content with raw syntax
+
+#### 🛠 Best Practices
+
+- Always prefer {{ }} unless HTML is trusted
+
+- Use components for reusable UI
+
+- Keep layouts minimal
+
+- Do not edit cached files manually
+
+- Clear storage/views during deployments if needed
+
+#### 🧩 Limitations (Current)
+
+- No @if, @foreach directives yet
+
+- No slots named other than $slot
+
+#### 🛣 Roadmap
+
+- Planned features:
+
+- Control directives (@if, @foreach)
+
+- Dynamic component props
+
+- Attribute bag support
+
+- Section & yield system
+
+- CLI cache clear command
 ### Notes
 
+No eval() used at runtime
 * **Dollar sign in variables is optional.** `{{ name }}` or `{{ $name }}` works.
 * Supports **both array and object access** in nested variables.
 * Both **directive and function style includes** are supported.

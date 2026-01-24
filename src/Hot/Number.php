@@ -1,7 +1,100 @@
 <?php
 namespace Hot;
 
+use InvalidArgumentException;
+
 class Number{
+    
+    protected static array $units = [
+        0 => 'zero', 1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four',
+        5 => 'five', 6 => 'six', 7 => 'seven', 8 => 'eight', 9 => 'nine',
+        10 => 'ten', 11 => 'eleven', 12 => 'twelve', 13 => 'thirteen',
+        14 => 'fourteen', 15 => 'fifteen', 16 => 'sixteen',
+        17 => 'seventeen', 18 => 'eighteen', 19 => 'nineteen'
+    ];
+
+    protected static array $tens = [
+        20 => 'twenty', 30 => 'thirty', 40 => 'forty',
+        50 => 'fifty', 60 => 'sixty', 70 => 'seventy',
+        80 => 'eighty', 90 => 'ninety'
+    ];
+    protected static array $scales = [
+        100 => 'hundred',
+        1000 => 'thousand',
+        1000000 => 'million',
+        1000000000 => 'billion',
+        1000000000000 => 'trillion',
+    ];
+
+    protected static array $currencies = [
+        'UGX' => ['name' => 'Ugandan shilling', 'plural' => 'Ugandan shillings'],
+        'USD' => ['name' => 'US dollar', 'plural' => 'US dollars'],
+        'SHS' => ['name' => 'shilling', 'plural' => 'shillings'],
+    ];
+
+    /* ================================
+     * NUMBER → WORDS (supports decimals)
+     * ================================ */
+    public static function numberToWords(float|int $number): string
+    {
+        if ($number == 0) return 'zero';
+
+        $integer = floor($number);
+        $decimal = $number - $integer;
+
+        $words = self::convertInteger($integer);
+
+        if ($decimal > 0) {
+            $words .= ' point';
+            foreach (str_split(substr((string)$decimal, 2)) as $digit) {
+                $words .= ' ' . self::$units[(int)$digit];
+            }
+        }
+
+        return trim($words);
+    }
+
+    protected static function convertInteger(int $number): string
+    {
+        if ($number < 20) return self::$units[$number];
+
+        if ($number < 100) {
+            $tens = intval($number / 10) * 10;
+            return self::$tens[$tens] .
+                ($number % 10 ? ' ' . self::$units[$number % 10] : '');
+        }
+
+        foreach (array_reverse(self::$scales, true) as $value => $name) {
+            if ($number >= $value) {
+                return self::convertInteger(intval($number / $value)) .
+                    " $name " .
+                    ($number % $value ? self::convertInteger($number % $value) : '');
+            }
+        }
+
+        return '';
+    }
+
+
+
+    /* ================================
+     * CURRENCY
+     * ================================ */
+    public static function currency(float $amount, string $code): string
+    {
+        if (!isset(self::$currencies[$code])) {
+            throw new InvalidArgumentException("Unsupported currency: $code");
+        }
+
+        $currency = self::$currencies[$code];
+        $words = self::numberToWords($amount);
+
+        $name = $amount == 1
+            ? $currency['name']
+            : $currency['plural'];
+
+        return "$words $name";
+    }
     //generating sequence of number
     public static function sequence(int $from, string $to, int|float $steps = 1): array{
         $result_array = [$from];
