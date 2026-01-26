@@ -20,8 +20,8 @@ class Password{
         return password_hash($plain_password, PASSWORD_ARGON2ID);
     }
     //verify
-    public static function verify($plain_text, $hash_text):bool{
-        return password_verify($plain_text, $hash_text);
+    public static function verify(int|string $plain_text, string $hash_text):bool{
+        return password_verify( $plain_text, $hash_text);
     }
 }
 

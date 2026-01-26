@@ -3,7 +3,7 @@ namespace Hot;
 
 use Exception;
 
-class Template {
+class View {
     protected static string $viewPath      = __DIR__ . '/views';
     protected static string $layoutPath    = __DIR__ . '/layouts';
     protected static string $componentPath = __DIR__ . '/views/components';
@@ -100,7 +100,7 @@ class Template {
         $content = preg_replace_callback(
             '/<x-([\w\-]+)\s*([^>]*)\/>/',
             function ($m) {
-                return "<?= View::renderComponent('{$m[1]}', " .
+                return "<?= self::renderComponent('{$m[1]}', " .
                     self::compileProps($m[2]) . ") ?>";
             },
             $content
@@ -110,7 +110,7 @@ class Template {
         $content = preg_replace_callback(
             '/<x-([\w\-]+)\s*([^>]*)>(.*?)<\/x-\1>/s',
             function ($m) {
-                return "<?= View::renderComponent('{$m[1]}', " .
+                return "<?= self::renderComponent('{$m[1]}', " .
                     self::compileProps($m[2]) . ", " .
                     var_export($m[3], true) . ") ?>";
             },
@@ -119,29 +119,29 @@ class Template {
 
         /* RAW */
         $content = preg_replace_callback(
-            '/\{!!\s*(.+?)\s*!!\}/s',
-            fn($m) => "<?= View::raw(" . self::normalizeExpression($m[1]) . ") ?>",
+            '/\{\{!!\s*(.+?)\s*!!\}\}/s',
+            fn($m) => "<?= self::raw(" . self::normalizeExpression($m[1]) . ") ?>",
             $content
         );
 
         /* ESCAPED */
         $content = preg_replace_callback(
             '/\{\{\s*(.+?)\s*\}\}/s',
-            fn($m) => "<?= View::e(" . self::normalizeExpression($m[1]) . ") ?>",
+            fn($m) => "<?= self::e(" . self::normalizeExpression($m[1]) . ") ?>",
             $content
         );
 
         /* @include */
         $content = preg_replace_callback(
             '/@include\((.+)\)/',
-            fn($m) => "<?= View::includePartial({$m[1]}) ?>",
+            fn($m) => "<?= self::includePartial({$m[1]}) ?>",
             $content
         );
-
+        
         /* @layout */
         $content = preg_replace_callback(
             '/@layout\([\'"](.+?)[\'"]\)/',
-            fn($m) => "<?php echo View::extendLayout('{$m[1]}', get_defined_vars()); ?>",
+            fn($m) => "<?= self::extendLayout('{$m[1]}', get_defined_vars()); ?>",
             $content
         );
 

@@ -3,7 +3,7 @@ namespace Hot;
 
 use Exception;
 
-class Views {
+class Template {
     protected static string $viewPath   = __DIR__ . '/views';
     protected static string $layoutPath = __DIR__ . '/layouts';
 

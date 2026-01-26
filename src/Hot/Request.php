@@ -22,7 +22,7 @@ class Request{
     //getting files
     public static function files(){
         if(!isset($_FILES)) return false;
-        return $_FILES['files'];
+        return isset($_FILES['files'])?$_FILES['files']:null;
     }
 
 }

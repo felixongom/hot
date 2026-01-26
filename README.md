@@ -35,18 +35,17 @@ Hot\Hot::flash('success');
 // will get flash messege with key sucsess  
 ```
 
+### rundom()
+Generate random string of default length 8. Takes in the length of the string as one parameter. 
+```php
+Hot\Hot::random(5);
+```
+
 ### env()
 It reads a particular evironment variable from the .env file. It returns the value of the key passed. If no key is passed it returns the whole env array results. 
 ```php
 Hot\Data::env(); //returns array;
 Hot\Data::env('passcode'); //returns the value of the key;
-```
-
-
-### rundom()
-Generate random string of default length 8. Takes in the length of the string as one parameter. 
-```php
-Hot\Hot::random(5);
 ```
 ## URL
 ### redirect()
@@ -93,6 +92,14 @@ public static function incoming(string|array|null $query = null): string
 Hot\Url::incoming()
 //https://ongom.com/home
 ```
+### incomingBase
+Base URL of incoming request (includes app subfolder)
+```php
+public static function incomingBase(string|array|null $query = null): string
+//usage
+Hot\Url::incomingBase()
+```
+
 ### incomingPath()
 Returns the incoming path only (no scheme, no host)
 ```php
@@ -149,13 +156,6 @@ public static function send($data, int $status_code = 200)
 Hot\Response::send()
 ```
 
-### sequence()
-Generate and returns sequence of number from down to up or from up to down. Takes in the three number parameter; from, to and steps. 
-```php
-Hot\Number::sequence(1,8,3);
-// OR
-Hot\Number::sequence(8, 5, 0.2);
-```
 ## Files
 
 ### upload()
@@ -209,6 +209,7 @@ Hot\Number::numberToWords(1002);
 //one thousand two 
 ```
 
+
 ### currency
 Converts money to words
 ```php
@@ -216,6 +217,13 @@ public static function currency(float $amount, string $code): string
 // usage
 Hot\Number::currency(1002, 'USD');
 //one thousand two  US dollars
+```
+### sequence()
+Generate and returns sequence of number from down to up or from up to down. Takes in the three number parameter; from, to and steps. 
+```php
+Hot\Number::sequence(1,8,3);
+// OR
+Hot\Number::sequence(8, 5, 0.2);
 ```
 
 ### format()
@@ -281,7 +289,8 @@ Hot\Password::verify('123455', '$pdojshjs...');
 This is a **lightweight, class-based PHP View Engine** that allows you to:
 
 * Render template files, raw strings, or numbers.
-* Use layouts with **slots** (default `$slot`).
+* Use layouts with **slots** as `<?= $slot ?>` or `{{!! slot !!}}` to render content.
+* Include partials (`@include` or `{{ include() }}`) and pass data. Uses relarive path
 * Include partials (`@include` or `{{ include() }}`) and pass data.
 * Access nested variables via **dot (`user.name`)** or **arrow (`user->name`)** syntax.
 * Use layouts optionally and support **nested layouts**.
@@ -294,12 +303,16 @@ This is a **lightweight, class-based PHP View Engine** that allows you to:
 ### Setting Paths
 
 ```php
-View::setViewPath(string $path);
-View::setLayoutPath(string $path);
+View::setViewPath(__DIR__ . '/views');
+View::setLayoutPath(__DIR__ . '/layouts');
+View::setComponentPath(__DIR__ . '/views/components');
+View::setCachePath(__DIR__ . '/storage/views');
 ```
 
 * `setViewPath`: Define the directory where your template files reside.
 * `setLayoutPath`: Define the directory where your layout files reside.
+* `setComponentPath`: Define the directory where your components files reside.
+* `setCachePath`: Define the directory where your cache files reside.
 
 **Example:**
 
@@ -396,7 +409,7 @@ Create an html file in that directory eg. profile.html, Add content to you html
   <div> 
     <h1>{{ user.name }}</h1>
     <h1>{{ user->email }}</h1>
-    <?= $slot ?> //to dispaly other content within the component tags 
+    <?= $slot ?>  //to dispaly other content within the component tags 
   </div>
 
   //OR

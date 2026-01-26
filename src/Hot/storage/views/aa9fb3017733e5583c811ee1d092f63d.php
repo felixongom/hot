@@ -1,0 +1,1 @@
+<footer>coppy righted in <?= self::e($year) ?></footer>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Url;
+namespace Hot;
 use RuntimeException;
 
 class Url{
