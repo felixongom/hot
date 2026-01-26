@@ -3,7 +3,6 @@ namespace Hot;
 
 class Files{
     // upload files
-
     public static function upload($files, array $options){
         if(!isset($files)) return false;
         // 

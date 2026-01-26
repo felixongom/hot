@@ -1,1 +1,0 @@
-<h3 style="color:blue;">The list</h3>

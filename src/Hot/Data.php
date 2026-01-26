@@ -1,7 +1,6 @@
 <?php
 namespace Hot;
 class Data{
-   
     //getting env values data
     public static function env(string $key){
         $env = parse_ini_file('.env');
