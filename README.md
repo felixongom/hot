@@ -59,9 +59,7 @@ public static function redirect(
 
 //usage
 Hot\Url::redirect('/login', ['name'=>'tom'], 300)
-// if using  a route
 Hot\Url::redirect('https://www.youtube.com');
-// if using php core without routing library
 ```
 ### redirectBack()
 Redirects the request back to the url it is comming from. It takes in array or string query params and status and a status code.
@@ -281,18 +279,13 @@ Takes in plain text and hashed text then, reterns a boolean, true for match and 
 Hot\Password::verify('123455', '$pdojshjs...');
 ```
 
-
-
 <!--  -->
 # View Engine
 
 This is a **lightweight, class-based PHP View Engine** that allows you to:
 
-* Render template files, raw strings, or numbers.
-* Use layouts with **slots** as `<?= $slot ?>` or `{{!! slot !!}}` to render content.
-* Include partials (`@include` or `{{ include() }}`) and pass data. Uses relarive path
-* Include partials (`@include` or `{{ include() }}`) and pass data.
-* Access nested variables via **dot (`user.name`)** or **arrow (`user->name`)** syntax.
+* Render template files.
+* Use layouts with **slots** as `<?= $$slot ?>` or `<?= echo $$slot ?>` to render content.
 * Use layouts optionally and support **nested layouts**.
 * Automatically echo output via `View::render()` or return as string via `View::fetch()`.
 
@@ -314,13 +307,6 @@ View::setCachePath(__DIR__ . '/storage/views');
 * `setComponentPath`: Define the directory where your components files reside.
 * `setCachePath`: Define the directory where your cache files reside.
 
-**Example:**
-
-```php
-View::setViewPath(__DIR__ . '/views');
-View::setLayoutPath(__DIR__ . '/layouts');
-```
-
 ---
 
 ### Rendering Templates
@@ -335,8 +321,6 @@ View::render(string|int $viewOrContent, array $data = [], ?string $layout = null
 * Accepts:
 
   1. Template file name (from `viewPath`).
-  2. Raw string template containing `{{ }}`.
-  3. Numbers (outputs as string).
 * Optional layout wraps the content.
 
 **Example:**
@@ -344,12 +328,8 @@ View::render(string|int $viewOrContent, array $data = [], ?string $layout = null
 ```php
 // Template file with layout
 View::render('home', ['name'=>'Felix'], 'main');
-
-// Raw string
-View::render('<p>Hello {{ name }}</p>', ['name'=>'Alice']);
-
-// Plain number
-View::render(12345);
+//OR 
+View::render('/home', ['name'=>'Felix'], 'main');
 ```
 
 ---
@@ -357,7 +337,7 @@ View::render(12345);
 #### `fetch()`
 
 ```php
-View::fetch(string|int $viewOrContent, array $data = [], ?string $layout = null): string
+View::fetch(string $viewOrContent, array $data = [], ?string $layout = null): string
 ```
 
 * Works like `render()`, but **returns the content as string** instead of echoing.
@@ -369,47 +349,38 @@ View::fetch(string|int $viewOrContent, array $data = [], ?string $layout = null)
 
 #### Variables
 
-* Basic variable: `{{ name }}` or `{{ $name }}`
+* Basic variable: Normal PHP echo syntax, `<?= $var ?>` and `<?php echo $var ?>`
 * Nested variables:
 
 ```php
-{{ user.name }}   // array access
-{{ user->email }} // object access
-{!! post.content !!} // html content
-```
+//Escaped automatically
+<?= $var ?>
+<?php echo $var ?>
+<?= $use['name'] ?>
 
----
-
-#### Includes / Partials
-
-* **Directive style**: `@include('partial', ['key'=>'value'])`
-* **Function style**: `{{ include('partial', ['key'=>'value']) }}`
-
-**Example:**
-
-```php
-@include('partials/header', ['user'=>$name])
-{{ include('partials/footer', ['year'=>2024]) }}
+//Raw html content
+<?= $var ?>
+<?php echo "<h1>Hello!!</h1>" ?>
 
 ```
 
 ---
 
 #### Components / Partials
-Set up path to compont directory 
+Set up path to componnt directory 
 ```php
   View::setComponentPath(__DIR__ . '/views/components');
 ```
 Create an html file in that directory eg. profile.html, Add content to you html
 ```php
-  <div> profile: {{user.name}}</div>
+  <div> profile: <?= $user['name']?></div>
 
   //OR
 
   <div> 
-    <h1>{{ user.name }}</h1>
-    <h1>{{ user->email }}</h1>
-    <?= $slot ?>  //to dispaly other content within the component tags 
+    <h1><?= $user['name'] ?></h1>
+    <h1><?= $user->email ?></h1>
+    <?= $$slot ?>  //to dispaly html content within the component tags 
   </div>
 
   //OR
@@ -461,32 +432,22 @@ in the templete
 - All passed props → $text, $class, etc.
 
 - Props are unlimited.
+
+- Props are scoped to the component.
 ---
 
 #### Layouts and Slots
 
 * Use a layout: `View::render('home', $data, 'main')`
-* Nested layouts inside a layout:
 
-```php
-@layout('main')
-```
 
-* Inside layouts, the **child content is available as `$slot`**:
+* Inside layouts, the **child content is available as `<?= $slot ?>`**:
 
 ```php
 <main>
-  {{ $slot }}
+  <?= $slot ?>
 </main>
 ```
-
----
-
-### Internal Methods (Advanced / Optional)
-
-* `compile(string $content)`: Converts template syntax (`{{ }}`, `@include`, `@layout`) into executable PHP.
-* `includePartial(string $view, array $data = [])`: Render a partial file with optional data.
-* `extendLayout(string $layout, array $data)`: Used internally for nested layouts.
 
 ---
 
@@ -507,62 +468,7 @@ project/
 
 ---
 
-### Sample Templates
-
-**views/home.php**
-
-```php
-<h1>Hello {{ user.name }}</h1>
-<p>Email: {{ user->email }}</p>
-@include('partial', ['msg'=>'From Home'])
-```
-
-**layouts/main.php**
-
-```php
-<html>
-<head><title>{{ title }}</title></head>
-<body>
-<header>HEADER</header>
-<main>{{ $slot }}</main>
-<footer>FOOTER</footer>
-</body>
-</html>
-```
-
-**layouts/nested.php**
-
-```php
-@layout('main')
-<nav>NAVBAR</nav>
-<div>{{ $slot }}</div>
-```
-
----
-
-### Usage Examples
-You can also use it with any router 
-```php
-// Set paths
-View::setViewPath(__DIR__ . '/views');
-View::setLayoutPath(__DIR__ . '/layouts');
-
-// Render template file with layout
-View::render('home', ['user'=>['name'=>'Felix','email'=>'f@example.com'], 'title'=>'Home'], 'main');
-
-// Render raw string
-View::render('<p>Hello {{ name }}</p>', ['name'=>'Alice']);
-
-// Render number
-View::render(12345);
-
-// Nested layout
-View::render('home', ['user'=>['name'=>'Dana','email'=>'d@example.com']], 'nested');
-```
-
----
-
-🚀 View Caching
+### 🚀 View Caching
 
 - Compiled templates are cached to disk for high performance.
 
@@ -580,9 +486,9 @@ View::render('home', ['user'=>['name'=>'Dana','email'=>'d@example.com']], 'neste
 
 #### 🛡 Security Notes
 
-- {{ }} is always escaped
+- `<?= $var ?>` is always escaped
 
-- {!! !!} is raw (use carefully)
+- `<?php echo $var ?>` is raw (use carefully)
 
 - Components and layouts share the same escape rules
 
@@ -590,7 +496,7 @@ View::render('home', ['user'=>['name'=>'Dana','email'=>'d@example.com']], 'neste
 
 #### 🛠 Best Practices
 
-- Always prefer {{ }} unless HTML is trusted
+- Always prefer `<?= $var ?>` and `<?php echo $var ?>` unless HTML is trusted
 
 - Use components for reusable UI
 
@@ -599,31 +505,3 @@ View::render('home', ['user'=>['name'=>'Dana','email'=>'d@example.com']], 'neste
 - Do not edit cached files manually
 
 - Clear storage/views during deployments if needed
-
-#### 🧩 Limitations (Current)
-
-- No @if, @foreach directives yet
-
-- No slots named other than $slot
-
-#### 🛣 Roadmap
-
-- Planned features:
-
-- Control directives (@if, @foreach)
-
-- Dynamic component props
-
-- Attribute bag support
-
-- Section & yield system
-
-- CLI cache clear command
-### Notes
-
-No eval() used at runtime
-* **Dollar sign in variables is optional.** `{{ name }}` or `{{ $name }}` works.
-* Supports **both array and object access** in nested variables.
-* Both **directive and function style includes** are supported.
-* Layouts are **optional** and can extend other layouts.
-* `$slot` variable contains the child content inside layouts.
