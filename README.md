@@ -174,18 +174,18 @@ Hot\Files::upload($_FILES['files'], $options);
 ### delete()
 It deletes any file from the server. It takes in a string or array of filenames and the directory where it is stored.
 ```php
-Hot\Files::delete('logo.png','path/to/directory',); //path can be url
+Hot\Files::delete('logo.png','path/to/directory',); 
 //or
 Hot\Files::delete(['logo.png','image.jpg'] , 'path/to/directory');
 ```
 ### getFiles()
 It gets all the files from the provided directory. It take in an array or string of filename, and the derectory where the files is stored and an optional fallback image which can either be a link or the file on the server. 
 ```php
-Hot\Files::files('logo.png','path/to/directory');
+Hot\Files::getFiles('logo.png','path/to/directory');
 //
-Hot\Files::files(['logo.png','image.jpg'],'https://myapp.com/public/uploads');
+Hot\Files::getFiles(['logo.png','image.jpg'],'/public/uploads');
 //
-Hot\Files::files(['logo.png','image.jpg'],'path/to/directory', 'logo.png');
+Hot\Files::getFiles(['logo.png','image.jpg'],'path/to/directory', 'logo.png');
 ```
 
 ### exist()
@@ -193,7 +193,7 @@ checks if a file exist in the directory. Takes in the file path and returns a bo
 ```php
 Hot\Files::exist('logo.png','path/to/directory/');
 
-Hot\Files::exist('logo.png','https://myapp.com/public/uploads');
+Hot\Files::exist('logo.png','/public/uploads');
 ```
 
 ## Number 

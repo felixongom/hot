@@ -25,7 +25,6 @@ class Files{
                 'max_size'=>$options['max_size'], 
                 'upload_path'=>$options['upload_path'],
                 'new_name'=>$options['new_name'],
-
             ];
 
              // Create directory if it does not exist
@@ -89,14 +88,13 @@ class Files{
     public static function delete(array|string $file_name, string $file_dir){
         if(is_string($file_name)){
             $file = "$file_dir/$file_name";
-            self::exist($file, $file_dir)? unlink($file):null;
+            self::exist($file, '')? unlink($file):null;
             clearstatcache();
         }elseif(is_array($file_name)){
             foreach ($file_name as $path) {
                 $file = "$file_dir/$path";
-                self::exist($file, $file_dir)? unlink($file):null;
+                self::exist($file, '')? unlink($file):null;
                 clearstatcache();
-                
             }
         }
     }
@@ -105,7 +103,7 @@ class Files{
         if(is_string($file_name)){
             $full_name = "$file_dir/$file_name";
             // 
-            if(self::exist($full_name, $file_dir)){
+            if(self::exist($full_name, '')){
                 return $full_name;
             }else {
                 if(!$default){
@@ -118,7 +116,7 @@ class Files{
             $full_names = [];
             foreach ($file_name as $name) {
                 $full_name = "$file_dir/$name";
-                if(self::exist($full_name, $file_dir)){
+                if(self::exist($full_name, '')){
                     $full_names = [...$full_names, $full_name];
                 }else {
                     if(!$default){
@@ -133,8 +131,8 @@ class Files{
         }
     }
     // file exist
-    public static function exist(string $file_path, string $path_to_files):bool{
-        $exists = file_exists($path_to_files.$file_path)?true:false;
+    public static function exist(string $file_name, string $path_to_files):bool{
+        $exists = file_exists($path_to_files.$file_name)?true:false;
         clearstatcache();
         return $exists;
     }
