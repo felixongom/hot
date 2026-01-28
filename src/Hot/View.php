@@ -184,12 +184,12 @@ class View
         return "<?= self::renderComponent('$name', $propsCode, " . var_export($slot, true) . ") ?>";
     }
 
-    public static function renderComponent(string $name, array $props, string $slot): string
+    public static function renderComponent(string $component_name, array $props, string $slot): string
     {
-        $file = self::$componentPath . "/$name.php";
+        $file = self::$componentPath . "/$component_name.php";
 
         if (!file_exists($file)) {
-            throw new Exception("Component [$name] not found");
+            throw new Exception("Component [$component_name] not found");
         }
 
         $props['slot'] = $slot;

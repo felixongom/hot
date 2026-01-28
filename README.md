@@ -288,7 +288,6 @@ This is a **lightweight, class-based PHP View Engine** that allows you to:
 * Use layouts with **slots** as `<?= $$slot ?>` or `<?php echo $$slot ?>` to render content.
 * Use layouts optionally and support **nested layouts via component slot**. 
 * Automatically echo output via `View::render()` or return as string via `View::fetch()`.
-* `name` is a key word that returns the name of the page of component`.
 
 ---
 
