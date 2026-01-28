@@ -285,9 +285,10 @@ Hot\Password::verify('123455', '$pdojshjs...');
 This is a **lightweight, class-based PHP View Engine** that allows you to:
 
 * Render template files.
-* Use layouts with **slots** as `<?= $$slot ?>` or `<?= echo $$slot ?>` to render content.
-* Use layouts optionally and support **nested layouts**.
+* Use layouts with **slots** as `<?= $$slot ?>` or `<?php echo $$slot ?>` to render content.
+* Use layouts optionally and support **nested layouts via component slot**. 
 * Automatically echo output via `View::render()` or return as string via `View::fetch()`.
+* `name` is a key word that returns the name of the page of component`.
 
 ---
 
@@ -314,13 +315,11 @@ View::setCachePath(__DIR__ . '/storage/views');
 #### `render()`
 
 ```php
-View::render(string|int $viewOrContent, array $data = [], ?string $layout = null): void
+View::render(string $view, array $data = [], ?string $layout = null): void
 ```
 
 * Automatically **echoes** the output.
-* Accepts:
-
-  1. Template file name (from `viewPath`).
+* Accepts template file name (from `viewPath`).
 * Optional layout wraps the content.
 
 **Example:**
@@ -337,7 +336,7 @@ View::render('/home', ['name'=>'Felix'], 'main');
 #### `fetch()`
 
 ```php
-View::fetch(string $viewOrContent, array $data = [], ?string $layout = null): string
+View::fetch(string $view, array $data = [], ?string $layout = null): string
 ```
 
 * Works like `render()`, but **returns the content as string** instead of echoing.
@@ -350,7 +349,7 @@ View::fetch(string $viewOrContent, array $data = [], ?string $layout = null): st
 #### Variables
 
 * Basic variable: Normal PHP echo syntax, `<?= $var ?>` and `<?php echo $var ?>`
-* Nested variables:
+* Nested variables: Access with normal php syntax.
 
 ```php
 //Escaped automatically
@@ -359,21 +358,22 @@ View::fetch(string $viewOrContent, array $data = [], ?string $layout = null): st
 <?= $use['name'] ?>
 
 //Raw html content
-<?= $var ?>
-<?php echo "<h1>Hello!!</h1>" ?>
+<?php echo $$htmlContent ?>
+<?= $$htmlContent ?>
+<?= $$slot ?>
 
 ```
 
 ---
 
 #### Components / Partials
-Set up path to componnt directory 
+Set up path to component directory 
 ```php
   View::setComponentPath(__DIR__ . '/views/components');
 ```
 Create an html file in that directory eg. profile.html, Add content to you html
 ```php
-  <div> profile: <?= $user['name']?></div>
+  <div> profile: <?= $user['name'] ?></div>
 
   //OR
 
@@ -408,6 +408,14 @@ in the templete
 <x-profile user="$user" users="$users" count="5">
   Profile HTML markup
 </x-profile>
+```
+#### Nested components
+```php
+<x-post-card post="$post">
+  <x-image img="$profile_image">
+  <x-post img="$post_content">
+  display my via slot
+</x-profile>
 
 ```
 
@@ -422,12 +430,12 @@ in the templete
 | Array        | ✅         | `$users[]`          |
 | Object       | ✅         | `$user->name`       |
 | Closure      | ✅         | `$callback()`       |
-| Slot content | ✅         | `$slot`             |
+| Slot content | ✅         | `$$slot`             |
 
 
 #### Available variables in components
 
-- $slot → inner content
+- $$slot → inner content
 
 - All passed props → $text, $class, etc.
 
@@ -441,11 +449,11 @@ in the templete
 * Use a layout: `View::render('home', $data, 'main')`
 
 
-* Inside layouts, the **child content is available as `<?= $slot ?>`**:
+* Inside layouts, the **child content is available as `<?= $$slot ?>`** just like in components
 
 ```php
 <main>
-  <?= $slot ?>
+  <?= $$slot ?>
 </main>
 ```
 
