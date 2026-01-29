@@ -289,9 +289,21 @@ This is a **lightweight, class-based PHP View Engine** that allows you to:
 * Use layouts optionally and support **nested layouts via component slot**. 
 * Automatically echo output via `View::render()` or return as string via `View::fetch()`.
 
+###  FEATURES IMPLEMENTED
+
+✔ Dot-notation views (dashboard.home)
+✔ Dot-notation components (admin.message.alert)
+✔ Sub-folders for views, layouts, components
+✔ Inline HTML / text templates auto-detected
+✔ Single API: render() / fetch() only
+✔ Component variable isolation
+✔ Slot support
+✔ Cached compilation
+✔ Escaped & raw output
+✔ Nested components
+
 ---
 
-## Class: `View`
 
 ### Setting Paths
 
@@ -314,11 +326,13 @@ View::setCachePath(__DIR__ . '/storage/views');
 #### `render()`
 
 ```php
-View::render(string $view, array $data = [], ?string $layout = null): void
+View::render(string $view, array $data = [], ?string $layout = null):void;
 ```
 
 * Automatically **echoes** the output.
 * Accepts template file name (from `viewPath`).
+* Accepts inline string (from `viewPath`).
+* Navigate folders though dot notation `dashboard.home`
 * Optional layout wraps the content.
 
 **Example:**
@@ -326,8 +340,12 @@ View::render(string $view, array $data = [], ?string $layout = null): void
 ```php
 // Template file with layout
 View::render('home', ['name'=>'Felix'], 'main');
-//OR 
+// 
 View::render('/home', ['name'=>'Felix'], 'main');
+// 
+View::render('dashboard.home', ['name'=>'Felix'], 'main');
+// 
+View::render('<h1>Hello <?= $name ?></h1>', ['name' => 'Felix']);
 ```
 
 ---
@@ -370,7 +388,7 @@ Set up path to component directory
 ```php
   View::setComponentPath(__DIR__ . '/views/components');
 ```
-Create an html file in that directory eg. profile.html, Add content to you html
+Create an html file in that directory eg. profile.html, Add content to you html. You can have sub-folders in components folder too
 ```php
   <div> profile: <?= $user['name'] ?></div>
 
@@ -392,8 +410,6 @@ Create an html file in that directory eg. profile.html, Add content to you html
     <?php endforeach ?>
   </table>
 
-<p>Total users: <?= count($users) ?></p>
-
 ```
 Display the component within your templete using its name as before
 
@@ -401,15 +417,27 @@ Display the component within your templete using its name as before
 in the templete
 ```php
 <x-profile user="$user" users="$users" count="5" />
-//oR
+
+//OR
+
 <x-profile user="$user" users="$users" count="5"></x-profile>
-//oR
+
+//OR
+
 <x-profile user="$user" users="$users" count="5">
   Profile HTML markup
 </x-profile>
-```
-#### Nested components
-```php
+
+//OR
+//acces components located in sub-folder
+<x-admin.message.alert type="error" message="$msg">
+  Hello
+</x-admin.message.alert>
+
+//OR
+
+//Nested components
+
 <x-post-card post="$post">
   <x-image img="$profile_image">
   <x-post img="$post_content">
@@ -469,8 +497,12 @@ project/
 │    ├── user.php
 │    └── partial.php
 │── layouts/
-     ├── main.php
-     └── nested.php
+|    ├── main.php
+|    └── nested.php
+── components/
+    ├── dasboard
+    |     └── navbar.php
+    └── nested.php
 ```
 
 ---

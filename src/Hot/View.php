@@ -40,25 +40,27 @@ class View
 
     protected static function ensureDirectory(string $path): void
     {
-        if (!is_dir($path)) mkdir($path, 0777, true);
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
     }
 
     /* ======================================================
-       ESCAPE HELPERS
+       ESCAPING
     ====================================================== */
 
     public static function out(mixed $value): string
     {
-        return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
     }
 
     public static function raw(mixed $value): string
     {
-        return (string)$value;
+        return (string) $value;
     }
 
     /* ======================================================
-       RENDER
+       RENDERING
     ====================================================== */
 
     public static function render(string $view, array $data = [], ?string $layout = null): void
@@ -68,19 +70,35 @@ class View
 
     public static function fetch(string $view, array $data = [], ?string $layout = null): string
     {
-        $content = self::evaluate(self::$viewPath, $view, $data);
+        if (self::isInlineTemplate($view)) {
+            $content = self::evaluateString($view, $data);
+        } else {
+            $content = self::evaluate(self::$viewPath, $view, $data);
+        }
 
         if ($layout) {
-            $data['slot'] = $content; // raw slot
+            $data['slot'] = $content;
             return self::evaluate(self::$layoutPath, $layout, $data);
         }
 
         return $content;
     }
 
+    protected static function isInlineTemplate(string $view): bool
+    {
+        return (
+            str_contains($view, '<') &&
+            str_contains($view, '>')
+        ) || str_contains(trim($view), ' ');
+    }
+
+    /* ======================================================
+       FILE EVALUATION
+    ====================================================== */
+
     protected static function evaluate(string $base, string $viewName, array $data): string
     {
-        $file = "$base/$viewName.php";
+        $file = self::resolvePath($base, $viewName);
 
         if (!file_exists($file)) {
             throw new Exception("View [$viewName] not found");
@@ -93,29 +111,54 @@ class View
         return ob_get_clean();
     }
 
+    protected static function resolvePath(string $base, string $name): string
+    {
+        $path = str_replace('.', DIRECTORY_SEPARATOR, $name);
+        $path = trim($path, DIRECTORY_SEPARATOR);
+        return $base . DIRECTORY_SEPARATOR . $path . '.php';
+    }
+
+    /* ======================================================
+       INLINE TEMPLATE EVALUATION
+    ====================================================== */
+
+    protected static function evaluateString(string $template, array $data): string
+    {
+        // {{ name }} → escaped output
+        $template = preg_replace(
+            '/\{\{\s*(\w+)\s*\}\}/',
+            '<?= self::out($$1) ?>',
+            $template
+        );
+
+        extract($data, EXTR_SKIP);
+
+        ob_start();
+        eval('?>' . $template);
+        return ob_get_clean();
+    }
+
     /* ======================================================
        COMPILER
     ====================================================== */
 
     protected static function compile(string $file): string
     {
-        if (!is_dir(self::$cachePath)) {
-            mkdir(self::$cachePath, 0777, true);
-        }
+        self::ensureDirectory(self::$cachePath);
 
         $cache = self::$cachePath . '/' . md5($file) . '.php';
 
         if (!file_exists($cache) || filemtime($cache) < filemtime($file)) {
             $code = file_get_contents($file);
 
-            // Raw HTML: $$var → raw()
+            // $$var → raw output
             $code = preg_replace_callback(
                 '/\$\$(\w+)/',
-                fn($m) => ' self::raw(' . '$' . $m[1] . ') ',
+                fn($m) => 'self::raw($' . $m[1] . ')',
                 $code
             );
 
-            // Escaped: $var → out()
+            //  $var  → escaped
             $code = preg_replace_callback(
                 '/<\?=\s*(\$\w+)\s*\?>/',
                 fn($m) => '<?= self::out(' . $m[1] . ') ?>',
@@ -144,16 +187,16 @@ class View
 
     protected static function compileComponents(string $html): string
     {
-        // <x-name>...</x-name>
+        // <x-admin.message.alert>...</x-admin.message.alert>
         $html = preg_replace_callback(
-            '/<x-([\w\-]+)([^>]*)>(.*?)<\/x-\1>/s',
+            '/<x-([\w\.\-]+)([^>]*)>(.*?)<\/x-\1>/s',
             fn($m) => self::componentCall($m[1], $m[2], $m[3]),
             $html
         );
 
-        // <x-name ... /> self-closing
+        // <x-admin.message.alert />
         $html = preg_replace_callback(
-            '/<x-([\w\-]+)([^\/>]*)\/>/',
+            '/<x-([\w\.\-]+)([^\/>]*)\/>/',
             fn($m) => self::componentCall($m[1], $m[2], ''),
             $html
         );
@@ -168,11 +211,9 @@ class View
         preg_match_all('/([\w\-]+)="([^"]*)"/', $attrString, $matches, PREG_SET_ORDER);
 
         foreach ($matches as [, $key, $value]) {
-            if (str_starts_with($value, '$')) {
-                $props[$key] = $value;
-            } else {
-                $props[$key] = var_export($value, true);
-            }
+            $props[$key] = str_starts_with($value, '$')
+                ? $value
+                : var_export($value, true);
         }
 
         $propsCode = '[' . implode(',', array_map(
@@ -184,12 +225,13 @@ class View
         return "<?= self::renderComponent('$name', $propsCode, " . var_export($slot, true) . ") ?>";
     }
 
-    public static function renderComponent(string $component_name, array $props, string $slot): string
+    public static function renderComponent(string $component, array $props, string $slot): string
     {
-        $file = self::$componentPath . "/$component_name.php";
+        $path = str_replace('.', DIRECTORY_SEPARATOR, $component);
+        $file = self::$componentPath . DIRECTORY_SEPARATOR . $path . '.php';
 
         if (!file_exists($file)) {
-            throw new Exception("Component [$component_name] not found");
+            throw new Exception("Component [$component] not found");
         }
 
         $props['slot'] = $slot;
