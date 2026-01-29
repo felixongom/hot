@@ -289,7 +289,7 @@ This is a **lightweight, class-based PHP View Engine** that allows you to:
 * Use layouts optionally and support **nested layouts via component slot**. 
 * Automatically echo output via `View::render()` or return as string via `View::fetch()`.
 
-###  FEATURES IMPLEMENTED
+###  FEATURES
 
 ✔ Dot-notation views (dashboard.home)
 ✔ Dot-notation components (admin.message.alert)
