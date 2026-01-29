@@ -447,7 +447,7 @@ in the templete
 ```
 
 
-### 8️⃣ Component Summary table
+### Component Summary table
 
 | Data type    | Supported | Access in component |
 | ------------ | --------- | ------------------- |
@@ -507,7 +507,7 @@ project/
 
 ---
 
-### 🚀 View Caching
+### View Caching
 
 - Compiled templates are cached to disk for high performance.
 
@@ -523,7 +523,7 @@ project/
 "storage/views/" //must be writable
 ```
 
-#### 🛡 Security Notes
+#### Security Notes
 
 - `<?= $var ?>` is always escaped
 
