@@ -195,8 +195,16 @@ class View
         );
 
         // <x-admin.message.alert />
+        // $html = preg_replace_callback(
+        //     '/<x-([\w\.\-]+)([^\/>]*)\/>/',
+        //     fn($m) => self::componentCall($m[1], $m[2], ''),
+        //     $html
+        // );
+
+        // 
+        // <x-admin.message.alert />
         $html = preg_replace_callback(
-            '/<x-([\w\.\-]+)([^\/>]*)\/>/',
+            '/<x-([\w\.\-]+)([^>]*)\/>/',
             fn($m) => self::componentCall($m[1], $m[2], ''),
             $html
         );

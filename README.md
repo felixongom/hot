@@ -291,19 +291,18 @@ This is a **lightweight, class-based PHP View Engine** that allows you to:
 
 ###  FEATURES
 
-✔ Dot-notation views (dashboard.home)
-✔ Dot-notation components (admin.message.alert)
-✔ Sub-folders for views, layouts, components
-✔ Inline HTML / text templates auto-detected
-✔ Single API: render() / fetch() only
-✔ Component variable isolation
-✔ Slot support
-✔ Cached compilation
-✔ Escaped & raw output
-✔ Nested components
+- Dot-notation views (dashboard.home)
+- Dot-notation components (admin.message.alert)
+- Sub-folders for views, layouts, components
+- Inline HTML / text templates auto-detected
+- Single API: render() / fetch() only
+- Component variable isolation
+- Slot support
+- Cached compilation
+- Escaped & raw output
+- Nested components
 
 ---
-
 
 ### Setting Paths
 
@@ -533,7 +532,7 @@ project/
 
 - Avoid rendering untrusted content with raw syntax
 
-#### 🛠 Best Practices
+#### Best Practices
 
 - Always prefer `<?= $var ?>` and `<?php echo $var ?>` unless HTML is trusted
 
