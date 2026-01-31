@@ -311,12 +311,14 @@ View::setViewPath(__DIR__ . '/views');
 View::setLayoutPath(__DIR__ . '/layouts');
 View::setComponentPath(__DIR__ . '/views/components');
 View::setCachePath(__DIR__ . '/storage/views');
+View::setViewExtension('.blade.php');
 ```
 
 * `setViewPath`: Define the directory where your template files reside.
 * `setLayoutPath`: Define the directory where your layout files reside.
 * `setComponentPath`: Define the directory where your components files reside.
 * `setCachePath`: Define the directory where your cache files reside.
+* `setViewExtension`: Define the extension of the view, layout and component files. 
 
 ---
 

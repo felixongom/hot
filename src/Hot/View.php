@@ -9,6 +9,7 @@ class View
     protected static string $layoutPath    = __DIR__ . '/layouts';
     protected static string $componentPath = __DIR__ . '/components';
     protected static string $cachePath     = __DIR__ . '/cache';
+    protected static string $view_extension = '.php';
 
     /* ======================================================
        PATHS
@@ -36,6 +37,11 @@ class View
     {
         self::$cachePath = rtrim($path, DIRECTORY_SEPARATOR);
         self::ensureDirectory(self::$cachePath);
+    }
+
+    public static function setViewExtension(string $extension): void
+    {
+        self::$view_extension = $extension;
     }
 
     protected static function ensureDirectory(string $path): void
@@ -115,7 +121,7 @@ class View
     {
         $path = str_replace('.', DIRECTORY_SEPARATOR, $name);
         $path = trim($path, DIRECTORY_SEPARATOR);
-        return $base . DIRECTORY_SEPARATOR . $path . '.php';
+        return $base . DIRECTORY_SEPARATOR . $path . self::$view_extension ;
     }
 
     /* ======================================================
@@ -146,7 +152,7 @@ class View
     {
         self::ensureDirectory(self::$cachePath);
 
-        $cache = self::$cachePath . '/' . md5($file) . '.php';
+        $cache = self::$cachePath . '/' . md5($file) . '.php' ;
 
         if (!file_exists($cache) || filemtime($cache) < filemtime($file)) {
             $code = file_get_contents($file);
@@ -194,13 +200,6 @@ class View
             $html
         );
 
-        // <x-admin.message.alert />
-        // $html = preg_replace_callback(
-        //     '/<x-([\w\.\-]+)([^\/>]*)\/>/',
-        //     fn($m) => self::componentCall($m[1], $m[2], ''),
-        //     $html
-        // );
-
         // 
         // <x-admin.message.alert />
         $html = preg_replace_callback(
@@ -208,6 +207,7 @@ class View
             fn($m) => self::componentCall($m[1], $m[2], ''),
             $html
         );
+
 
         return $html;
     }
@@ -236,7 +236,7 @@ class View
     public static function renderComponent(string $component, array $props, string $slot): string
     {
         $path = str_replace('.', DIRECTORY_SEPARATOR, $component);
-        $file = self::$componentPath . DIRECTORY_SEPARATOR . $path . '.php';
+        $file = self::$componentPath . DIRECTORY_SEPARATOR . $path . self::$view_extension ;
 
         if (!file_exists($file)) {
             throw new Exception("Component [$component] not found");
