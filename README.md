@@ -386,7 +386,8 @@ View::fetch(string $view, array $data = [], ?string $layout = null): string
 ```
 
 ##### Global Variables
-This are variables that can be access every where within the page/view. Current component, current layout, current view/page and current pathname are accessed anywhere within the app as below
+This are variables that can be access every where within the page/view. Current component, current layout, current view/page and current pathname are accessed anywhere within the app by default as below
+
 ```php
 <?= $current_layout ?>//current layout (main)
 <?= $current_page ?>//current page (admin.home)

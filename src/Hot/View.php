@@ -160,12 +160,26 @@ class View
 
     protected static function evaluateString(string $template, array $data): string
     {
-        // {{ name }} → escaped output
-        $template = preg_replace(
-            '/\{\{\s*(\w+)\s*\}\}/',
-            '<?= self::out($$1) ?>',
-            $template
-        );
+        // $$var → raw output
+            $code = preg_replace_callback(
+                '/\$\$(\w+)/',
+                fn($m) => 'self::raw($' . $m[1] . ')',
+                $template
+            );
+
+            //  $var  → escaped
+            $code = preg_replace_callback(
+                '/<\?=\s*(\$\w+)\s*\?>/',
+                fn($m) => '<?= self::out(' . $m[1] . ') ?>',
+                $template
+            );
+
+            // php echo $var  → escaped
+            $code = preg_replace_callback(
+                '/<\?php\s+echo\s+(\$\w+)\s*;?\s*\?>/',
+                fn($m) => '<?= self::out(' . $m[1] . ') ?>',
+                $template
+            );
 
         extract($data, EXTR_SKIP);
 
