@@ -368,6 +368,9 @@ View::fetch(string $view, array $data = [], ?string $layout = null): string
 
 * Basic variable: Normal PHP echo syntax, `<?= $var ?>` and `<?php echo $var ?>`
 * Nested variables: Access with normal php syntax.
+* Global variables
+
+##### Basic Variables and Nested Variables
 
 ```php
 //Escaped automatically
@@ -382,6 +385,28 @@ View::fetch(string $view, array $data = [], ?string $layout = null): string
 
 ```
 
+##### Global Variables
+This are variables that can be access every where within the page/view. Current component, current layout, current view/page and current pathname are accessed anywhere within the app as below
+```php
+<?= $current_layout ?>//current layout (main)
+<?= $current_page ?>//current page (admin.home)
+<?= $current_page_name ?>//current page (home)
+<?= $current_component ?>//current component (admin.home)
+<?= $current_component_name ?>//current component name(home)
+<?= $pathname ?>//current pathname (/home)
+```
+##### Setting global Variables
+There are two ways of passing global variables to view/page. 
+- Using `View::setGlobalVariables(['tab'=> 'Home Tab']);`
+- Using using `global` substring in the varable name when passing variable through view/fetch.
+
+```php
+View::setGlobalVariables(['global_name'=>'I am global']);
+
+//OR
+
+View::render('home', ['global_name'=>'I am global'], 'main');
+```
 ---
 
 #### Components / Partials
@@ -440,9 +465,9 @@ in the templete
 //Nested components
 
 <x-post-card post="$post">
-  <x-image img="$profile_image">
+  <x-image img="$image">
   <x-post img="$post_content">
-  display my via slot
+  display slot
 </x-profile>
 
 ```

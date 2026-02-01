@@ -10,6 +10,9 @@ class View
     protected static string $componentPath = __DIR__ . '/components';
     protected static string $cachePath     = __DIR__ . '/cache';
     protected static string $view_extension = '.php';
+    protected static array $gloabal_variables = [];
+    protected static string $current_layout = '';
+    protected static string $current_page = '';
 
     /* ======================================================
        PATHS
@@ -43,6 +46,10 @@ class View
     {
         self::$view_extension = $extension;
     }
+    public static function setGlobalVariables(array $gloabal_variables): void
+    {
+        self::$gloabal_variables = [...self::$gloabal_variables, ...$gloabal_variables];
+    }
 
     protected static function ensureDirectory(string $path): void
     {
@@ -75,16 +82,39 @@ class View
     }
 
     public static function fetch(string $view, array $data = [], ?string $layout = null): string
-    {
+    { 
+        // 
+        self::$gloabal_variables = [
+            ...self::$gloabal_variables,
+            'current_layout'=>$layout,
+            'pathname'=>Url::incomingPath()
+        ];
+        foreach ($data as $key =>$value) {
+            if(str_starts_with($key, 'global')){
+                self::$gloabal_variables = [
+                    ...self::$gloabal_variables, 
+                    $key=>$value
+                ];
+            }
+        }
+        // 
+
         if (self::isInlineTemplate($view)) {
-            $content = self::evaluateString($view, $data);
+            $content = self::evaluateString($view, [...self::$gloabal_variables,...$data, ]);
         } else {
-            $content = self::evaluate(self::$viewPath, $view, $data);
+            $page_dotted_path = explode('.', $view);
+            // 
+            self::$gloabal_variables = [
+                ...self::$gloabal_variables,
+                'current_page'=>$page_dotted_path,
+                'current_page_name'=>end($page_dotted_path)
+                ];
+            $content = self::evaluate(self::$viewPath, $view, [...self::$gloabal_variables,...$data]);
         }
 
         if ($layout) {
             $data['slot'] = $content;
-            return self::evaluate(self::$layoutPath, $layout, $data);
+            return self::evaluate(self::$layoutPath, $layout, [...self::$gloabal_variables,...$data]);
         }
 
         return $content;
@@ -102,12 +132,12 @@ class View
        FILE EVALUATION
     ====================================================== */
 
-    protected static function evaluate(string $base, string $viewName, array $data): string
+    protected static function evaluate(string $base, string $view, array $data): string
     {
-        $file = self::resolvePath($base, $viewName);
-
+       
+        $file = self::resolvePath($base, $view);
         if (!file_exists($file)) {
-            throw new Exception("View [$viewName] not found");
+            throw new Exception("View [$view] not found");
         }
 
         extract($data, EXTR_SKIP);
@@ -193,24 +223,28 @@ class View
 
     protected static function compileComponents(string $html): string
     {
-        // <x-admin.message.alert>...</x-admin.message.alert>
-        $html = preg_replace_callback(
-            '/<x-([\w\.\-]+)([^>]*)>(.*?)<\/x-\1>/s',
-            fn($m) => self::componentCall($m[1], $m[2], $m[3]),
-            $html
-        );
+        do {
+            $old = $html;
 
-        // 
-        // <x-admin.message.alert />
-        $html = preg_replace_callback(
-            '/<x-([\w\.\-]+)([^>]*)\/>/',
-            fn($m) => self::componentCall($m[1], $m[2], ''),
-            $html
-        );
+            // Paired components
+            $html = preg_replace_callback(
+                '/<x-([\w\.\-]+)([^>]*)>(.*?)<\/x-\1>/s',
+                fn($m) => self::componentCall($m[1], $m[2], $m[3]),
+                $html
+            );
 
+            // Self-closing components
+            $html = preg_replace_callback(
+                '/<x-([\w\.\-]+)([^>]*)\/>/',
+                fn($m) => self::componentCall($m[1], $m[2], ''),
+                $html
+            );
+
+        } while ($html !== $old); // 🔥 keep compiling until stable
 
         return $html;
     }
+
 
     protected static function componentCall(string $name, string $attrString, string $slot): string
     {
@@ -230,24 +264,42 @@ class View
             array_values($props)
         )) . ']';
 
-        return "<?= self::renderComponent('$name', $propsCode, " . var_export($slot, true) . ") ?>";
+        // unique slot variable
+        $slotVar = '__slot_' . uniqid();
+
+        return <<<PHP
+    <?php ob_start(); ?>
+    $slot
+    <?php \$$slotVar = ob_get_clean(); ?>
+    <?= self::renderComponent('$name', $propsCode, \$$slotVar) ?>
+    PHP;
     }
 
-    public static function renderComponent(string $component, array $props, string $slot): string
-    {
-        $path = str_replace('.', DIRECTORY_SEPARATOR, $component);
-        $file = self::$componentPath . DIRECTORY_SEPARATOR . $path . self::$view_extension ;
 
+
+
+    public static function renderComponent(string $current_component, array $props, string $slot): string
+    {
+        $path = str_replace('.', DIRECTORY_SEPARATOR, $current_component);
+        $file = self::$componentPath . DIRECTORY_SEPARATOR . $path . self::$view_extension;
+        $_component_name = explode('.', $current_component);
+        $current_component_name = end($_component_name);
+        // 
         if (!file_exists($file)) {
-            throw new Exception("Component [$component] not found");
+            throw new Exception("Component [$current_component] not found");
         }
 
-        $props['slot'] = $slot;
+        // 🔥 render slot FIRST (so nested components work)
+        $props['slot'] = self::evaluateString(
+            self::compileComponents($slot),
+            [...self::$gloabal_variables, ...$props]
+        );
 
-        extract($props, EXTR_SKIP);
+        extract([...self::$gloabal_variables, ...$props], EXTR_SKIP);
 
         ob_start();
         require self::compile($file);
         return ob_get_clean();
     }
+
 }
