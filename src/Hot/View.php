@@ -199,33 +199,39 @@ class View
         $cache = self::$cachePath . '/' . md5($file) . '.php' ;
 
         if (!file_exists($cache) || filemtime($cache) < filemtime($file)) {
-            $code = file_get_contents($file);
+            $handle = fopen($file, 'r');
 
-            // $$var → raw output
-            $code = preg_replace_callback(
-                '/\$\$(\w+)/',
-                fn($m) => 'self::raw($' . $m[1] . ')',
-                $code
-            );
+            while (!feof($handle)) {
+                $code = fread($handle, 8192); // 8KB per read
+                // $$var → raw output
+                $code = preg_replace_callback(
+                    '/\$\$(\w+)/',
+                    fn($m) => 'self::raw($' . $m[1] . ')',
+                    $code
+                );
 
-            //  $var  → escaped
-            $code = preg_replace_callback(
-                '/<\?=\s*(\$\w+)\s*\?>/',
-                fn($m) => '<?= self::out(' . $m[1] . ') ?>',
-                $code
-            );
+                //  $var  → escaped
+                $code = preg_replace_callback(
+                    '/<\?=\s*(\$\w+)\s*\?>/',
+                    fn($m) => '<?= self::out(' . $m[1] . ') ?>',
+                    $code
+                );
 
-            // php echo $var  → escaped
-            $code = preg_replace_callback(
-                '/<\?php\s+echo\s+(\$\w+)\s*;?\s*\?>/',
-                fn($m) => '<?= self::out(' . $m[1] . ') ?>',
-                $code
-            );
+                // php echo $var  → escaped
+                $code = preg_replace_callback(
+                    '/<\?php\s+echo\s+(\$\w+)\s*;?\s*\?>/',
+                    fn($m) => '<?= self::out(' . $m[1] . ') ?>',
+                    $code
+                );
 
-            // Components
-            $code = self::compileComponents($code);
+                // Components
+                $code = self::compileComponents($code);
 
-            file_put_contents($cache, $code);
+                file_put_contents($cache, $code);
+            }
+
+            fclose($handle);
+            // $code = file_get_contents($file);
         }
 
         return $cache;
