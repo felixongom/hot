@@ -266,6 +266,7 @@ Takes in the date or time ahead and returns how much time is left.  Returns fals
 ```php
 Hot\Time::left('2024-11-15 11:38:00');
 ```
+## Password
 
 ### hash()
 Takes in plain text and reterns the hash. There more methods with different algorithms like `bcrypt(123456)`, `algon2i(123456)`, `algon21i(123456)`
@@ -278,7 +279,33 @@ Takes in plain text and hashed text then, reterns a boolean, true for match and 
 ```php
 Hot\Password::verify('123455', '$pdojshjs...');
 ```
+## SecureId
+A *PRO ID* encryption system built specifically for; numeric DB IDs, UUIDs / strings, public URLs, constant length output, URL-safe, reversible, collision-safe and faster than normal OpenSSL usage.
 
+This behaves like YouTube / Stripe / Laravel style IDs.
+It has two methods `encode` for encrypting the content and `decode` for decrypting the the content to original.
+
+#### Encode ID
+```php
+public static function encode(int|string $id, string $secret, int $length = 24): string
+
+// 
+
+$secret = "my_ultra_secret_key";
+$publicId = Hot\SecureId::encode(1254, $secret, 20);
+// hu7ui78yu78FFhgfd
+```
+
+### Decode back
+```php
+public static function decode(string $token, string $secret): string|false
+
+// 
+
+$secret = "my_ultra_secret_key";
+$id = Hot\SecureId::decode($publicId, $secret);
+// 1254
+```
 <!--  -->
 # View Engine
 

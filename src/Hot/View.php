@@ -260,7 +260,7 @@ class View
                 $html
             );
 
-        } while ($html !== $old); // 🔥 keep compiling until stable
+        } while ($html !== $old); // keep compiling until stable
 
         return $html;
     }
