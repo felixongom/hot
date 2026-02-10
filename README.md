@@ -279,34 +279,65 @@ Takes in plain text and hashed text then, reterns a boolean, true for match and 
 ```php
 Hot\Password::verify('123455', '$pdojshjs...');
 ```
+---
+
 ## SecureId
 A *PRO ID* encryption system built specifically for; numeric DB IDs, UUIDs / strings, public URLs, constant length output, URL-safe, reversible, collision-safe and faster than normal OpenSSL usage.
 
-This behaves like YouTube / Stripe / Laravel style IDs.
-It has two methods `encode` for encrypting the content and `decode` for decrypting the the content to original.
+It has two methods `encode` for encrypting the content and `decode` for decrypting the content to original.
 
-#### Encode ID
+#### Encode
 ```php
 public static function encode(int|string $id, string $secret, int $length = 24): string
 
-// 
-
+// Usage
 $secret = "my_ultra_secret_key";
-$publicId = Hot\SecureId::encode(1254, $secret, 20);
+$publicId = Hot\SecureId::encode(1254, $secret);
 // hu7ui78yu78FFhgfd
 ```
 
-### Decode back
+### Decode
 ```php
 public static function decode(string $token, string $secret): string|false
 
-// 
-
+// Usage  
 $secret = "my_ultra_secret_key";
 $id = Hot\SecureId::decode($publicId, $secret);
 // 1254
 ```
+#### Encrypt 
+It encrypts numerical values to random string that is reversible
+
+```php
+public static function encrypt(int $id): string
+
+// Usage
+$publicId = Hot\SecureId::encrypt(1254, $secret);
+// hu7ui7P
+```
+
+### Decrypt
+It brings back the original number thar was decrypted. What this protects against are /user/abc@@ → `null`, /user/zzzzz → `null`, /user/ → `null`, tampered token → `null`, non-integer results → `null`.
+Only valid encoded IDs return a number.
+```php
+public static function decrypt(string $hash): int
+
+// Usage  
+$id = Hot\SecureId::decrypt($hash);
+// 1254
+```
 <!--  -->
+
+## Id
+Secure method (AES encryption — recommended).
+Use OpenSSL so the ID cannot be guessed or reversed.
+```php
+public static function encode(int|string $id, ?string $secret=null)
+
+// Usage
+$token = Id::encode($id); // Endcodes
+$id = Id::decode($token) // Id  
+```
 # View Engine
 
 This is a **lightweight, class-based PHP View Engine** that allows you to:
