@@ -1,5 +1,5 @@
 # Hot-lib
-This is a php library that provides most of the common controller methods. It has on it static methods like;
+This is a php library that provides most of the common methods used in controller. It has on it static methods like;
 ### session()
 It saves and retrieve session variable. You don't need to start session.
 
@@ -284,7 +284,7 @@ Hot\Password::verify('123455', '$pdojshjs...');
 ## SecureId
 A *PRO ID* encryption system built specifically for; numeric DB IDs, UUIDs / strings, public URLs, constant length output, URL-safe, reversible, collision-safe and faster than normal OpenSSL usage.
 
-It has two methods `encode` for encrypting the content and `decode` for decrypting the content to original.
+It has methods `encode`/`encrypt` for encrypting the content and `decode`/`decrypt` for decrypting the content to original.
 
 #### Encode
 ```php
@@ -296,7 +296,7 @@ $publicId = Hot\SecureId::encode(1254, $secret);
 // hu7ui78yu78FFhgfd
 ```
 
-### Decode
+#### Decode
 ```php
 public static function decode(string $token, string $secret): string|false
 
@@ -309,7 +309,7 @@ $id = Hot\SecureId::decode($publicId, $secret);
 It encrypts numerical values to random string that is reversible
 
 ```php
-public static function encrypt(int $id): string
+public static function encrypt(int $id, $secret): string
 
 // Usage
 $publicId = Hot\SecureId::encrypt(1254, $secret);
@@ -337,6 +337,14 @@ public static function encode(int|string $id, ?string $secret=null)
 // Usage
 $token = Id::encode($id); // Endcodes
 $id = Id::decode($token) // Id  
+
+// or 
+
+// Usage
+$token = Id::encrypt($id, $secret = null); // Endcodes
+$id = Id:: decrypt($has, $secret = null) // Id  
+
+
 ```
 # View Engine
 

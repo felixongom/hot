@@ -35,4 +35,13 @@ class Id
             self::$iv
         );
     }
+    // encrypt
+    public static function encrypt(int $id, ?string $secret = null){
+        return SecureId::encrypt($id, $secret);
+
+    }
+    public static function decrypt(int $has, ?string $secret = null){
+        return SecureId::decrypt($has, $secret);
+
+    }
 }

@@ -8,14 +8,14 @@ class SecureId
     protected static string $salt = 'my-secret-salt-2026';
     protected static int $minLength = 6;
 
-    public static function encrypt(int $id): string
+    public static function encrypt(int $id, ?string $secret = null): string
     {
-        $hash = base_convert($id * crc32(self::$salt), 10, 36);
+        $hash = base_convert($id * crc32($secret?:self::$salt), 10, 36);
 
         return str_pad($hash, self::$minLength, '0', STR_PAD_LEFT);
     }
 
-    public static function decrypt(?string $hash): ?int
+    public static function decrypt(?string $hash, ?string $secret=null): ?int
     {
         // If token missing
         if (!$hash) {
@@ -35,7 +35,7 @@ class SecureId
         }
 
         // Reverse encoding
-        $id = $num / crc32(self::$salt);
+        $id = $num / crc32($secret?:self::$salt);
 
         // Must be a whole integer
         if (!is_numeric($id) || (int)$id != $id) {
