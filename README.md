@@ -35,10 +35,22 @@ Hot\Hot::flash('success');
 // will get flash messege with key sucsess  
 ```
 
-### rundom()
+### randomString()
 Generate random string of default length 8. Takes in the length of the string as one parameter. 
 ```php
-Hot\Hot::random(5);
+Hot\Hot::randomString(5);
+```
+
+### randomLetters()
+Generate random letters of default length 8. Takes in the length of the string as one parameter. 
+```php
+Hot\Hot::randomLetters(5);
+```
+
+### randomNumber()
+Generate random number of default length 8. Takes in the length of the string as one parameter. Returns a string of numbers 
+```php
+Hot\Hot::randomNumber(5);
 ```
 
 ### env()
@@ -115,7 +127,7 @@ public static function body(bool $as_array = true):array|object|null
 Hot\Request::body()
 ```
 ### params()
-Gets request query params. It can return Object or array or null
+Gets request query params from an api call. It can return Object or array or null
 ```php
 public static function params(bool $as_array = true):array|object|null
 Hot\Request::params()
@@ -185,7 +197,7 @@ Hot\Files::getFiles('logo.png','path/to/directory');
 //
 Hot\Files::getFiles(['logo.png','image.jpg'],'/public/uploads');
 //
-Hot\Files::getFiles(['logo.png','image.jpg'],'path/to/directory', 'logo.png');
+Hot\Files::getFiles(['logo.png','image.jpg'],'path/to/directory', 'default.png');
 ```
 
 ### exist()
@@ -402,6 +414,7 @@ View::render(string $view, array $data = [], ?string $layout = null):void;
 * Accepts template file name (from `viewPath`).
 * Accepts inline string (from `viewPath`).
 * Navigate folders though dot notation `dashboard.home`
+* Passind data as associtive array
 * Optional layout wraps the content.
 
 **Example:**
@@ -454,7 +467,7 @@ View::fetch(string $view, array $data = [], ?string $layout = null): string
 ```
 
 ##### Global Variables
-This are variables that can be access every where within the page/view. Current component, current layout, current view/page and current pathname are accessed anywhere within the app by default as below
+This are variables that can automatically be access every where within the page/view. Current component, current layout, current view/page and current pathname are accessed anywhere within the app by default as below
 
 ```php
 <?= $current_layout ?>//current layout (main)
@@ -465,9 +478,9 @@ This are variables that can be access every where within the page/view. Current 
 <?= $pathname ?>//current pathname (/home)
 ```
 ##### Setting global Variables
-There are two ways of passing global variables to view/page. 
+There are two ways of passing youn own global variables to view/page too. 
 - Using `View::setGlobalVariables(['tab'=> 'Home Tab']);`
-- Using using `global` substring in the varable name when passing variable through view/fetch.
+- Using `global` substring in the varable name when passing variable through view/fetch.
 
 ```php
 View::setGlobalVariables(['global_name'=>'I am global']);
@@ -542,17 +555,17 @@ in the templete
 ```
 
 
-### Component Summary table
+### Component Summary table for paaing vairiables to components
 
 | Data type    | Supported | Access in component |
 | ------------ | --------- | ------------------- |
-| String       | ✅         | `$title`            |
-| Integer      | ✅         | `$count`            |
-| Boolean      | ✅         | `$isAdmin`          |
-| Array        | ✅         | `$users[]`          |
-| Object       | ✅         | `$user->name`       |
-| Closure      | ✅         | `$callback()`       |
-| Slot content | ✅         | `$$slot`             |
+| String       | ✓         | `$title`            |
+| Integer      | ✓         | `$count`            |
+| Boolean      | ✓         | `$isAdmin`          |
+| Array        | ✓         | `$users[]`          |
+| Object       | ✓         | `$user->name`       |
+| Closure      | ✓         | `$callback()`       |
+| Slot content | ✓         | `$$slot`             |
 
 
 #### Available variables in components
@@ -585,7 +598,7 @@ in the templete
 
 ```
 project/
-│── View.php
+│── index.php
 │── test.php
 │── views/
 │    ├── home.php
@@ -622,7 +635,7 @@ project/
 
 - `<?= $var ?>` is always escaped
 
-- `<?php echo $var ?>` is raw (use carefully)
+- `<?= $$var ?>` is raw (use carefully)
 
 - Components and layouts share the same escape rules
 
@@ -638,4 +651,6 @@ project/
 
 - Do not edit cached files manually
 
-- Clear storage/views during deployments if needed
+- Clear storage/views/cached during deployments if needed
+
+# THANK YOU

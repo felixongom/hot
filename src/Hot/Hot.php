@@ -47,15 +47,33 @@ class Hot{
 
    
     //random string.
-    public static function random(int $length = 8):string{
-        $numbers = "1234567890";
-        $upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        $characters = $numbers.$upper.strtolower($upper);
+    private static function randomize(string $characters, int $length):string{
         $result = "";
 
         for ($i=0; $i < $length; $i++) {
             $result .=$characters[random_int(0,strlen($characters))-1];
         }
         return $result;
+    }
+
+    //random string.
+    public static function randomString(int $length = 8):string{
+        $numbers = "1234567890";
+        $upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $characters = $numbers.$upper.strtolower($upper);
+        return self::randomize($characters, $length);
+    }
+
+    //random letters.
+    public static function randomLetters(int $length = 8):string{
+        $upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $characters = $upper.strtolower($upper);
+        return self::randomize($characters, $length);
+    }
+    
+    //random number.
+    public static function randomNumber(int $length = 8):string{
+        $numbers = "1234567890";
+        return self::randomize($numbers, $length);
     }
 }

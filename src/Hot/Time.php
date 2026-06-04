@@ -3,7 +3,7 @@ namespace Hot;
 
 class Time{
     //time ago
-    public static function ago($datetime):string | bool{
+    public static function ago(string $datetime):string | bool{
         $timestamp = strtotime($datetime);
         $current_time = time();
         $diff = $current_time - $timestamp;
@@ -36,7 +36,7 @@ class Time{
         }
     }
     // time left
-    public static function left($datetime):string | bool {
+    public static function left(string $datetime):string | bool {
         $timestamp = strtotime($datetime);
         $current_time = time();
         $diff = $timestamp - $current_time;
